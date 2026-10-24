@@ -1,0 +1,42 @@
+[
+  {
+    "file": "vermeer",
+    "objectId": 437881,
+    "title": "Young Woman with a Water Pitcher",
+    "artist": "Johannes Vermeer",
+    "date": "ca. 1662",
+    "department": "European Paintings",
+    "url": "https://www.metmuseum.org/art/collection/search/437881",
+    "credit": "Marquand Collection, Gift of Henry G. Marquand, 1889"
+  },
+  {
+    "file": "bruegel",
+    "objectId": 435809,
+    "title": "The Harvesters",
+    "artist": "Pieter Bruegel the Elder",
+    "date": "1565",
+    "department": "European Paintings",
+    "url": "https://www.metmuseum.org/art/collection/search/435809",
+    "credit": "Rogers Fund, 1919"
+  },
+  {
+    "file": "turner",
+    "objectId": 437853,
+    "title": "Venice, from the Porch of Madonna della Salute",
+    "artist": "Joseph Mallord William Turner",
+    "date": "ca. 1835",
+    "department": "European Paintings",
+    "url": "https://www.metmuseum.org/art/collection/search/437853",
+    "credit": "Bequest of Cornelius Vanderbilt, 1899"
+  },
+  {
+    "file": "irises",
+    "objectId": 436528,
+    "title": "Irises",
+    "artist": "Vincent van Gogh",
+    "date": "1890",
+    "department": "European Paintings",
+    "url": "https://www.metmuseum.org/art/collection/search/436528",
+    "credit": "Gift of Adele R. Levy, 1958"
+  }
+]

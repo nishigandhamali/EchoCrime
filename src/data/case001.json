@@ -1,0 +1,313 @@
+{
+  "id": "case-001",
+  "number": "Case #001",
+  "title": "The Midnight Theft",
+  "location": "Riverside Museum",
+  "incidentTime": "11:47 PM",
+  "summary": "A priceless artifact vanishes from a locked gallery. The cameras were dead. Only a microphone was listening.",
+  "scenario": "A valuable artifact disappears from the Riverside Museum at 11:47 PM. Security cameras malfunctioned, but a nearby microphone recorded suspicious sounds. You must discover how the theft happened and identify the responsible suspect.",
+  "recording": {
+    "label": "Gallery Mic 3 \u2014 23:47:00",
+    "durationSeconds": 36
+  },
+  "events": [
+    {
+      "id": "glass",
+      "type": "glass_break",
+      "label": "Broken Window",
+      "startSeconds": 8,
+      "description": "A large window shatters inside the east gallery."
+    },
+    {
+      "id": "steps",
+      "type": "footsteps",
+      "label": "Running Footsteps",
+      "startSeconds": 14,
+      "description": "Someone runs across the marble floor."
+    },
+    {
+      "id": "clang",
+      "type": "metallic_clang",
+      "label": "Metallic Clang",
+      "startSeconds": 21,
+      "description": "A heavy metal object strikes the floor."
+    },
+    {
+      "id": "vehicle",
+      "type": "vehicle",
+      "label": "Escape Vehicle",
+      "startSeconds": 28,
+      "description": "An engine starts outside and pulls away."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "ev-case",
+      "name": "Untriggered Alarm",
+      "description": "The pedestal alarm contacts are clean. Whoever opened this case did it without tripping the alarm.",
+      "source": "Display case",
+      "eventId": null,
+      "locked": false
+    },
+    {
+      "id": "ev-window",
+      "name": "Broken Window",
+      "description": "Glass shatters in the east gallery. Was it the entry point, or staged?",
+      "source": "Gallery Mic 3",
+      "eventId": "glass",
+      "locked": false
+    },
+    {
+      "id": "ev-steps",
+      "name": "Running Footsteps",
+      "description": "Fast, hard-soled steps cross the marble. The runner knows the layout.",
+      "source": "Gallery Mic 3",
+      "eventId": "steps",
+      "locked": false
+    },
+    {
+      "id": "ev-clang",
+      "name": "Metallic Clang",
+      "description": "Something heavy and metal hits the floor. A tool, a lock, or a dropped weapon?",
+      "source": "Gallery Mic 3",
+      "eventId": "clang",
+      "locked": false
+    },
+    {
+      "id": "ev-door",
+      "name": "Unlatched Staff Door",
+      "description": "The staff door is not fully latched. The badge reader logged no entry tonight, yet the latch plate is warm.",
+      "source": "Staff Corridor",
+      "eventId": null,
+      "locked": false
+    },
+    {
+      "id": "ev-terminal",
+      "name": "Security Recording Log",
+      "description": "The terminal lists one recording from Gallery Mic 3 at 23:47. The camera feeds stop four minutes earlier; the microphone kept running.",
+      "source": "Security terminal",
+      "eventId": null,
+      "locked": false
+    },
+    {
+      "id": "ev-vehicle",
+      "name": "Escape Vehicle",
+      "description": "An engine turns over outside the loading dock and fades away.",
+      "source": "Gallery Mic 3",
+      "eventId": "vehicle",
+      "locked": false
+    },
+    {
+      "id": "ev-hidden",
+      "name": "Hidden Evidence",
+      "description": "Classified. Something on the recording has not been found yet.",
+      "source": "Unknown",
+      "eventId": null,
+      "locked": true,
+      "lockedHint": "Something on the recording has not been found yet."
+    }
+  ],
+  "suspects": [
+    {
+      "id": "alex",
+      "name": "Alex Turner",
+      "role": "Museum Technician",
+      "age": 34,
+      "initials": "AT",
+      "background": "Eight years maintaining the museum's security and climate systems. Has access to the camera control room.",
+      "statement": "\"I was repairing the HVAC in the basement. I heard glass break upstairs and called security right away.\""
+    },
+    {
+      "id": "morgan",
+      "name": "Morgan Lee",
+      "role": "Museum Curator",
+      "age": 52,
+      "initials": "ML",
+      "background": "Curator of the east gallery for fifteen years. Personally authorized the artifact's recent insurance appraisal.",
+      "statement": "\"I left at ten. I was home long before midnight. I only know what the police have told me.\""
+    },
+    {
+      "id": "jordan",
+      "name": "Jordan Mills",
+      "role": "Contractor",
+      "age": 41,
+      "initials": "JM",
+      "background": "Hired for window restoration in the east gallery. Holds a temporary key card and drives a work van.",
+      "statement": "\"My shift ended at six. I haven't been back to the museum since I handed in my key card.\""
+    }
+  ],
+  "hotspots": [
+    {
+      "id": "hs-window",
+      "name": "Shattered Window",
+      "kind": "window",
+      "position": [
+        6.5,
+        1.35,
+        -7.7
+      ],
+      "evidenceId": "ev-window",
+      "eventId": "glass",
+      "inspection": "The east window is blown inward. Glass litters the floor inside the gallery, not on the sidewalk outside. Whoever broke it was already on the wrong side, or wanted it to look that way.",
+      "roomId": "east-gallery",
+      "reach": 2.8
+    },
+    {
+      "id": "hs-case",
+      "name": "Broken Display Case",
+      "kind": "case",
+      "position": [
+        -2,
+        1.5,
+        -4.5
+      ],
+      "evidenceId": "ev-case",
+      "eventId": null,
+      "inspection": "One pane of the display case is gone. The velvet cushion is empty and the pedestal alarm contacts are clean, as if the alarm was never triggered.",
+      "roomId": "main-gallery",
+      "reach": 2.6
+    },
+    {
+      "id": "hs-scuffs",
+      "name": "Scuff Marks",
+      "kind": "scuffs",
+      "position": [
+        6.8,
+        0.15,
+        -4.6
+      ],
+      "evidenceId": "ev-steps",
+      "eventId": "steps",
+      "inspection": "Long, hard-soled scuff marks run from the window toward the far corner. The stride is wide: this person was sprinting, and did not hesitate over which way to go.",
+      "roomId": "east-gallery",
+      "reach": 2.2
+    },
+    {
+      "id": "hs-metal",
+      "name": "Dropped Metal Object",
+      "kind": "metal",
+      "position": [
+        5.0,
+        0.3,
+        -3.0
+      ],
+      "evidenceId": "ev-clang",
+      "eventId": "clang",
+      "inspection": "A heavy steel pry bar lies on the marble, a fresh chip in the tile beneath it. It was dropped hard enough to ring through the whole gallery.",
+      "roomId": "east-gallery",
+      "reach": 2.2
+    },
+    {
+      "id": "hs-door",
+      "name": "Staff Door",
+      "kind": "door",
+      "position": [
+        8,
+        1.2,
+        -0.4
+      ],
+      "evidenceId": "ev-door",
+      "eventId": null,
+      "inspection": "The staff-only door is not fully latched. Its badge reader shows no entry logged tonight, yet the latch plate is warm to the touch.",
+      "roomId": "staff-corridor",
+      "reach": 2.4
+    },
+    {
+      "id": "hs-exit",
+      "name": "Exit Corridor",
+      "kind": "exit",
+      "position": [
+        5,
+        1.3,
+        6.7
+      ],
+      "evidenceId": "ev-vehicle",
+      "eventId": "vehicle",
+      "inspection": "The service corridor leads to the loading dock. Cold night air is flowing in, and faint tire marks lead away from the dock door.",
+      "roomId": "loading-bay",
+      "reach": 2.8
+    },
+    {
+      "id": "hs-terminal",
+      "name": "Security Terminal",
+      "kind": "terminal",
+      "position": [
+        -4.5,
+        1.1,
+        3.45
+      ],
+      "evidenceId": "ev-terminal",
+      "eventId": null,
+      "inspection": "The recording terminal is still logged in. One entry stands out: Gallery Mic 3, 23:47, thirty-six seconds of audio. The camera channels all end at 23:43.",
+      "roomId": "security-room",
+      "reach": 2.4
+    }
+  ],
+  "rooms": [
+    {
+      "id": "main-gallery",
+      "name": "Main Exhibition Gallery",
+      "floor": "marble",
+      "bounds": [
+        -7,
+        3,
+        -8,
+        -1
+      ],
+      "objective": "Examine the empty display case where the artifact was kept. Was the alarm ever triggered?",
+      "short": "Main Gallery"
+    },
+    {
+      "id": "east-gallery",
+      "name": "East Gallery",
+      "floor": "wood",
+      "bounds": [
+        3,
+        10,
+        -8,
+        -1
+      ],
+      "objective": "Find how the thief got in: the broken window, the scattered glass and the dropped metal object.",
+      "short": "East Gallery"
+    },
+    {
+      "id": "security-room",
+      "name": "Security Room",
+      "floor": "tile",
+      "bounds": [
+        -7,
+        -2,
+        -1,
+        4
+      ],
+      "objective": "Work out why the cameras failed, and who could reach the recording equipment.",
+      "short": "Security"
+    },
+    {
+      "id": "staff-corridor",
+      "name": "Staff Corridor",
+      "floor": "concrete",
+      "bounds": [
+        -2,
+        10,
+        -1,
+        1.5
+      ],
+      "objective": "Trace the thief's route through the restricted door toward the loading bay.",
+      "short": "Corridor"
+    },
+    {
+      "id": "loading-bay",
+      "name": "Loading Bay",
+      "floor": "dock",
+      "bounds": [
+        -2,
+        10,
+        1.5,
+        7
+      ],
+      "objective": "Find how the thief left: the service entrance and the escape vehicle.",
+      "short": "Loading Bay"
+    }
+  ]
+}
