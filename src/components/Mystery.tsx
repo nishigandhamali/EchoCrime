@@ -111,8 +111,9 @@ export function AccusationModal() {
             <h2 className="mt-1 font-display text-3xl">Who took the artifact?</h2>
             <div className="mt-4 grid grid-cols-3 gap-2" role="radiogroup" aria-label="Suspect">
               {caseFile.suspects.map((s) => (
-                <button key={s.id} role="radio" aria-checked={suspect === s.id} onClick={() => setSuspect(s.id)} data-testid={`suspect-${s.id}`} className={`rounded-lg border p-3 text-left ${suspect === s.id ? 'border-red-300/70 bg-red-300/10' : 'border-slate-700/60 hover:border-slate-500'}`}>
+                <button key={s.id} role="radio" aria-checked={suspect === s.id} onClick={() => setSuspect(s.id)} data-testid={`suspect-${s.id}`} className={`rounded-lg border-2 p-3 text-left transition-colors ${suspect === s.id ? 'border-red-400 bg-red-500/25 shadow-[0_0_24px_-6px_#f87171]' : 'border-slate-700/60 hover:border-slate-500'}`}>
                   <span className="font-display text-lg leading-tight">{s.name}</span><span className="block text-[11px] text-slate-400">{s.role}</span>
+                  {suspect === s.id && <span className="mt-1 inline-block font-mono text-[10px] uppercase tracking-widest text-red-200">✓ Selected</span>}
                 </button>
               ))}
             </div>
@@ -135,7 +136,8 @@ export function AccusationModal() {
                 <ul className="mt-1 list-disc space-y-0.5 pl-4">{verdict.feedback.map((f) => <li key={f}>{f}</li>)}</ul>
               </div>
             )}
-            <div className="mt-4 flex justify-end gap-2">
+            <div className="mt-4 flex items-center justify-end gap-2">
+              {(!suspect || picked.length === 0) && <span className="mr-auto text-xs text-amber-200" data-testid="accuse-hint">{!suspect ? 'Step 1: click a suspect above to turn the Accuse button on.' : 'Step 2: tick at least one clue.'}</span>}
               <button onClick={() => setAccuseOpen(false)} className="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-300 hover:border-slate-400">Keep investigating</button>
               <button disabled={!suspect || picked.length === 0 || busy} onClick={() => accuse({ suspectId: suspect!, evidenceIds: picked, theory })} data-testid="submit-accusation" className="flex items-center gap-2 rounded-lg border border-red-300/70 bg-red-300/10 px-4 py-2 text-sm text-red-100 hover:bg-red-300/20 disabled:opacity-40">
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Gavel className="h-4 w-4" />} Accuse
