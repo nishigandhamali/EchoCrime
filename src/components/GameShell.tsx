@@ -11,6 +11,7 @@ import { useMystery } from '../state/mystery'
 import { MapOverlay, ObjectiveCard, TimelinePanel } from './Progress'
 import { resetInvestigation } from '../state/actions'
 import { EvidenceToasts, InspectionPanel, InteractionPrompt, InventoryPanel, useInvestigationKeys } from './Investigation'
+import HandControl from './HandControl'
 
 const caseFile = caseData as CaseFile
 type Panel = PanelId
@@ -145,6 +146,7 @@ export default function GameShell() {
       <InspectionPanel />
       <InventoryPanel />
       <EvidenceToasts />
+      <HandControl />
 
       {/* bottom: controls guide */}
       <div className={`pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 transition-opacity ${inspecting ? 'opacity-0' : ''}`}>
