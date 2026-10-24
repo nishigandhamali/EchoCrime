@@ -107,7 +107,7 @@ function FramedPainting({ p }: { p: Painting }) {
   )
 }
 
-function Plinth({ x, z, h, children }: { x: number; z: number; h: number; children: React.ReactNode }) {
+export function Plinth({ x, z, h, children }: { x: number; z: number; h: number; children: React.ReactNode }) {
   const marble = useMemo(() => new THREE.MeshStandardMaterial({ ...pbrSet('marble_01', 1, 1), color: '#efe9de', roughness: 1, envMapIntensity: 0.9 }), [])
   return (
     <group position={[x, 0, z]}>

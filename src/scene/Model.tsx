@@ -6,23 +6,23 @@ import * as THREE from 'three'
 type V3 = [number, number, number]
 
 export const MODEL_NAMES = [
-  'bench', 'benchCushion', 'desk', 'deskCorner', 'chairDesk', 'computerScreen', 'computerKeyboard', 'televisionModern',
-  'cardboardBoxClosed', 'cardboardBoxOpen', 'lampSquareFloor', 'lampRoundFloor', 'pottedPlant', 'plantSmall1',
-  'bookcaseClosed', 'rugRectangle', 'coatRack', 'trashcan', 'radio', 'loungeSofa', 'speaker',
-  // Poly Haven (CC0), optimised to webp 512 textures
+  // Poly Haven (CC0): textures resized to 512 (webp) and meshes decimated for the browser
   'gallery/marble_bust_01', 'gallery/horse_statue_01', 'gallery/antique_ceramic_vase_01', 'gallery/fancy_picture_frame_02',
   'gallery/hanging_picture_frame_02', 'gallery/hanging_picture_frame_03', 'gallery/ornate_mirror_01', 'gallery/Ottoman_01',
   'gallery/potted_plant_04', 'gallery/ClassicConsole_01',
+  'rooms/metal_office_desk', 'rooms/modern_arm_chair_01', 'rooms/classic_laptop', 'rooms/security_camera_01', 'rooms/steel_frame_shelves_01',
+  'rooms/old_military_crate', 'rooms/wooden_crate_01', 'rooms/cardboard_box_01', 'rooms/hand_truck', 'rooms/korean_fire_extinguisher_01',
 ] as const
 export type ModelName = (typeof MODEL_NAMES)[number]
 
 const url = (n: string) => `${import.meta.env.BASE_URL}models/${n}.glb`
-MODEL_NAMES.forEach((n) => useGLTF.preload(url(n)))
+// only the first-room assets are preloaded; the rest stream in behind each room's local <Suspense>
+;(['gallery/marble_bust_01', 'gallery/Ottoman_01'] as const).forEach((n) => useGLTF.preload(url(n)))
 
 interface Props {
   name: ModelName
   at: V3
-  /** Uniform scale, or per-axis. Kenney models are roughly half real-world size. */
+  /** Uniform scale, or per-axis. */
   scale?: number | V3
   /** Yaw in radians. */
   yaw?: number

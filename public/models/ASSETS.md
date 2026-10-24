@@ -1,9 +1,12 @@
 # 3D asset credits
 
-| Files | Source | License |
-|---|---|---|
-| `bench`, `desk`, `deskCorner`, `chairDesk`, `computerScreen`, `computerKeyboard`, `televisionModern`, `cardboardBoxClosed`, `cardboardBoxOpen`, `lampSquareFloor`, `lampRoundFloor`, `pottedPlant`, `plantSmall1`, `bookcaseClosed`, `rugRectangle`, `coatRack`, `trashcan`, `radio`, `loungeSofa`, `speaker`, `benchCushion` (.glb) | Kenney, Furniture Kit 2.0, https://kenney.nl/assets/furniture-kit | CC0 1.0 (see `LICENSE-kenney-furniture.txt`) |
+All third-party assets are **CC0 1.0** (public domain). Credit is appreciated but not required.
 
-Everything else in the museum (walls, floors, columns, display case, paintings, banners, stanchions, window, glass shards, vehicle, security racks) is built procedurally in `src/scene/` and is original to this project.
+| Files | Source |
+|---|---|
+| `gallery/*.glb`, `rooms/*.glb` (busts, horse statue, vase, picture frames, mirror, console, ottoman, plant, office desk, chair, laptop, security camera, shelves, crates, hand truck, fire extinguisher) | Poly Haven, https://polyhaven.com (models by Rico Cilliers and others). Textures resized to 512 px webp and meshes decimated. |
+| `../textures/*.webp` (marble_01, dark_wood, painted_plaster_wall: diffuse, normal, roughness) | Poly Haven, 1k originals converted to webp. |
+| `characters/detective.glb` | Quaternius, Universal Base Characters [Standard] and Universal Animation Library [Standard], https://quaternius.itch.io. The body's base-colour map was repainted offline (trench coat, trousers, shoes) using the mesh's bone weights; hair is Quaternius `Hair_SimpleParted`; animations are `Idle_Loop`, `Walk_Loop`, `Jog_Fwd_Loop`, `Interact`. |
+| `../art/*.webp` | The Metropolitan Museum of Art Open Access (public domain): Vermeer, Bruegel the Elder, Turner, van Gogh. Metadata in `../art/paintings.json`. |
 
-| `characters/characterMedium.fbx`, `idle.fbx`, `run.fbx`, `skaterMaleA.png` | Kenney, Animated Characters: Protagonists 1.1, https://kenney.nl/assets/animated-characters-protagonists | CC0 1.0 (see `characters/LICENSE-kenney-characters.txt`). The skin is re-tinted to a trench-coat look at load time in `Character.tsx`; the shipped PNG is unmodified. |
+Everything else (walls, floors, columns, display case, banners, ropes, window, glass shards, vehicle, security racks) is built procedurally in `src/scene/`.

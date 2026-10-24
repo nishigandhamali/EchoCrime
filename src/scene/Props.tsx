@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import type { ReactNode } from 'react'
 import { Loads, Model } from './Model'
 import { Column } from './Column'
+import { Plinth } from './GalleryProps'
 
 export type V3 = [number, number, number]
 
@@ -117,13 +118,12 @@ export function EastGalleryProps() {
         </group>
       ))}
       <Loads>
-        <Model name="bench" at={[8.2, 0, -5.2]} scale={[2.2, 2, 2.2]} yaw={0} />
-        <Model name="pottedPlant" at={[9.4, 0, -7.4]} scale={3} />
-        <Model name="lampRoundFloor" at={[4.0, 0, -4.2]} scale={2.4} />
+        <Model name="gallery/Ottoman_01" at={[8.64, 0, -5.4]} fit={{ width: 1.1 }} />
+        <Model name="gallery/potted_plant_04" at={[9.4, 0, -7.4]} fit={{ height: 1.3 }} />
       </Loads>
       <Column x={3.6} z={-1.7} />
       <Column x={9.4} z={-1.7} />
-      <B p={[4.1, 0.45, -6.8]} s={[0.7, 0.9, 0.7]} c="#d8d4ca" r={0.5} />
+      <Plinth x={4.1} z={-6.8} h={0.9}><Loads><Model name="gallery/horse_statue_01" at={[0, 0, 0]} fit={{ height: 0.55 }} yaw={0.8} /></Loads></Plinth>
     </group>
   )
 }
@@ -141,15 +141,12 @@ export function SecurityProps() {
       })}
       {/* security desk, chair, desk monitors */}
       <Loads>
-        <Model name="desk" at={[-3.2, 0, 3.05]} scale={2.2} yaw={Math.PI} />
-        <Model name="desk" at={[-4.8, 0, 3.05]} scale={2.2} yaw={Math.PI} />
-        <Model name="computerScreen" at={[-3.9, 0.84, 3.55]} scale={2.2} yaw={Math.PI} />
-        <Model name="computerScreen" at={[-5.6, 0.84, 3.55]} scale={2.2} yaw={Math.PI} />
-        <Model name="computerKeyboard" at={[-4.2, 0.84, 3.2]} scale={2.2} yaw={Math.PI} />
-        <Model name="radio" at={[-4.9, 0.84, 3.5]} scale={2.2} yaw={Math.PI} />
-        <Model name="chairDesk" at={[-4.4, 0, 2.2]} scale={2.4} yaw={0.3} />
-        <Model name="trashcan" at={[-6.5, 0, 3.5]} scale={1.6} />
-        <Model name="lampSquareFloor" at={[-3.0, 0, 0.1]} scale={2.4} />
+        <Model name="rooms/metal_office_desk" at={[-5.5, 0, 3.3]} fit={{ width: 1.6 }} yaw={Math.PI} />
+        <Model name="rooms/metal_office_desk" at={[-3.9, 0, 3.3]} fit={{ width: 1.6 }} yaw={Math.PI} />
+        <Model name="rooms/classic_laptop" at={[-5.4, 0.76, 3.3]} fit={{ width: 0.42 }} yaw={Math.PI} />
+        <Model name="rooms/modern_arm_chair_01" at={[-4.6, 0, 2.2]} fit={{ height: 1.0 }} yaw={0.2} />
+        <Model name="rooms/security_camera_01" at={[-6.0, 2.55, -0.74]} fit={{ width: 0.45 }} />
+        <Model name="gallery/potted_plant_04" at={[-6.45, 0, 3.55]} fit={{ height: 1.1 }} />
       </Loads>
       {/* recording racks with status LEDs */}
       {[1.4, 2.2].map((z, i) => (
@@ -181,8 +178,8 @@ export function CorridorProps() {
       <B p={[4.2, 0.35, 1.15]} s={[0.9, 0.5, 0.45]} c="#5c6578" m={0.3} />
       <Cyl p={[-1.5, 0.35, 1.1]} r={0.12} h={0.7} c="#b3202e" />
       <Loads>
-        <Model name="coatRack" at={[1.2, 1.4, -0.7]} scale={2.4} />
-        <Model name="trashcan" at={[9.3, 0, 1.0]} scale={1.6} />
+        <Model name="rooms/korean_fire_extinguisher_01" at={[-1.55, 0, 1.3]} fit={{ height: 0.55 }} />
+        <Model name="rooms/steel_frame_shelves_01" at={[9.4, 0, 0.3]} fit={{ height: 1.9 }} yaw={-Math.PI / 2} />
       </Loads>
       {/* footprints/scuffs heading toward the loading bay door */}
       {scuffs.map((m, i) => (
@@ -205,9 +202,12 @@ export function LoadingBayProps() {
       <B p={[5, 1.95, 6.9]} s={[4, 0.22, 0.3]} c="#555d6e" m={0.7} r={0.4} />
       {/* delivery crates and pallets */}
       <Loads>
-        {[[-0.6, 0, 5.6], [0.5, 0, 5.7], [-0.1, 0.9, 5.6]].map(([x, y, z], i) => <Model key={i} name="cardboardBoxClosed" at={[x - 0.5, y, z + 0.5]} scale={4.6} yaw={i * 0.3} />)}
-        {[[8.4, 0, 5.2], [8.4, 0, 3.8], [8.5, 1.0, 4.5]].map(([x, y, z], i) => <Model key={i} name="cardboardBoxClosed" at={[x - 0.5, y, z + 0.5]} scale={4.8} yaw={-i * 0.2} />)}
-        <Model name="cardboardBoxOpen" at={[0.6, 0.18, 2.9]} scale={4} yaw={0.4} />
+        <Model name="rooms/old_military_crate" at={[-1.1, 0, 6.1]} fit={{ width: 1.0 }} yaw={0.15} />
+        <Model name="rooms/wooden_crate_01" at={[0.1, 0, 6.2]} fit={{ width: 0.95 }} yaw={-0.1} />
+        <Model name="rooms/cardboard_box_01" at={[7.9, 0, 5.7]} fit={{ width: 0.95 }} yaw={0.3} />
+        <Model name="rooms/old_military_crate" at={[7.9, 0, 4.3]} fit={{ width: 1.0 }} yaw={-0.2} />
+        <Model name="rooms/hand_truck" at={[2.2, 0, 6.3]} fit={{ height: 1.2 }} yaw={0.4} />
+        <Model name="rooms/cardboard_box_01" at={[0.9, 0.16, 2.9]} fit={{ width: 0.8 }} yaw={0.4} />
       </Loads>
       <B p={[0.9, 0.08, 2.9]} s={[1.2, 0.16, 1.2]} c="#6a5133" r={0.9} />
       {[9.0, 9.5].map((x, i) => <Cyl key={x} p={[x, 0.45, 2.5 + i * 0.1]} r={0.28} h={0.9} c="#2f6a8c" m={0.4} />)}
