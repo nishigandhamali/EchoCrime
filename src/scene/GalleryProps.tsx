@@ -210,7 +210,6 @@ export function MainGalleryProps() {
         <Model name="gallery/Ottoman_01" at={[-5.0, 0, -4.5]} fit={{ width: 1.0 }} yaw={Math.PI / 2} />
         <Model name="gallery/Ottoman_01" at={[1.0, 0, -4.5]} fit={{ width: 1.0 }} yaw={-Math.PI / 2} />
         <Model name="gallery/potted_plant_04" at={[-6.35, 0, -3.9]} fit={{ height: 1.3 }} />
-        <Model name="gallery/potted_plant_04" at={[2.45, 0, -4.6]} fit={{ height: 1.3 }} yaw={2} />
         <Model name="gallery/ClassicConsole_01" at={[2.58, 0, -6.4]} fit={{ width: 1.5 }} yaw={-Math.PI / 2} />
         <Model name="gallery/ornate_mirror_01" at={[2.82, 1.2, -6.4]} fit={{ height: 1.5 }} yaw={-Math.PI / 2} />
       </Loads>
