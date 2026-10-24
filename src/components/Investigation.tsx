@@ -21,6 +21,7 @@ export function useInvestigationKeys() {
       if (g.viewMode !== 'explore') return
       if (e.code === 'KeyE' && !g.frozen && g.nearbyId) inspectHotspot(g.nearbyId)
       else if (e.code === 'Enter' && g.inspectingId) collectInspected()
+      else if (e.code === 'Escape' && useMystery.getState().verdictShown) useMystery.getState().setVerdictShown(false)
       else if (e.code === 'Escape' && useMystery.getState().accuseOpen && !useMystery.getState().verdict?.reveal) useMystery.getState().setAccuseOpen(false)
       else if (e.code === 'Escape') { if (useAudio.getState().labOpen) { useAudio.getState().closeLab(); g.closeInspection() } else if (g.inspectingId) g.closeInspection(); else if (g.mapOpen) g.toggleMap(false); else if (g.inventoryOpen) g.toggleInventory(false); else if (g.panel) g.setPanel(null) }
       else if (e.code === 'Tab') { e.preventDefault(); if (!g.inspectingId) g.toggleInventory() }

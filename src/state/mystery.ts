@@ -23,16 +23,19 @@ interface MysteryState {
   attempt: number
   verdict: Verdict | null
   accuseOpen: boolean
+  /** The verdict/reveal screen is on screen (it can be dismissed without restarting). */
+  verdictShown: boolean
   busy: boolean
   error: string
   testLink: (statementId: string, evidenceId: string) => Promise<Link | null>
   accuse: (a: { suspectId: string; evidenceIds: string[]; theory: string }) => Promise<Verdict | null>
   setAccuseOpen: (open: boolean) => void
+  setVerdictShown: (shown: boolean) => void
   reset: () => void
 }
 
 export const useMystery = create<MysteryState>((set, get) => ({
-  links: [], attempt: 0, verdict: null, accuseOpen: false, busy: false, error: '',
+  links: [], attempt: 0, verdict: null, accuseOpen: false, verdictShown: false, busy: false, error: '',
   testLink: async (statementId, evidenceId) => {
     const dup = get().links.find((l) => l.statementId === statementId && l.evidenceId === evidenceId)
     if (dup) return dup
@@ -49,7 +52,7 @@ export const useMystery = create<MysteryState>((set, get) => ({
     set({ busy: true, error: '' })
     try {
       const r = await post<Verdict & { ok: boolean }>('/api/accuse', { ...a, attempt })
-      set({ attempt, verdict: r })
+      set({ attempt, verdict: r, verdictShown: !!r.reveal })
       return r
     } catch { set({ error: NO_SERVER }); return null } finally { set({ busy: false }) }
   },
@@ -57,5 +60,9 @@ export const useMystery = create<MysteryState>((set, get) => ({
     set({ accuseOpen: open, error: '' })
     useGame.getState().setFrozen(open)
   },
-  reset: () => { set({ links: [], attempt: 0, verdict: null, accuseOpen: false, busy: false, error: '' }) },
+  setVerdictShown: (shown) => {
+    set({ verdictShown: shown, accuseOpen: false })
+    useGame.getState().setFrozen(shown)
+  },
+  reset: () => { set({ links: [], attempt: 0, verdict: null, accuseOpen: false, verdictShown: false, busy: false, error: '' }) },
 }))

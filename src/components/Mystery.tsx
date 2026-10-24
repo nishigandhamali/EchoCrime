@@ -94,13 +94,14 @@ export function TheoryBoard() {
 
 /** Final accusation: suspect, supporting evidence, written theory; the server compares it with the hidden solution. */
 export function AccusationModal() {
-  const { accuseOpen, setAccuseOpen, accuse, busy, error, verdict, attempt } = useMystery()
+  const { accuseOpen, setAccuseOpen, accuse, busy, error, verdict, attempt, verdictShown, setVerdictShown } = useMystery()
   const status = useEvidence((s) => s.status)
   const [suspect, setSuspect] = useState<string | null>(null)
   const [picked, setPicked] = useState<string[]>([])
   const [theory, setTheory] = useState('')
   const found = caseFile.evidence.filter((e) => known(status[e.id]))
   const finished = !!verdict?.reveal
+  const won = verdict?.verdict === 'solved'
   return (
     <AnimatePresence>
       {accuseOpen && !finished && (
@@ -146,11 +147,15 @@ export function AccusationModal() {
           </motion.div>
         </motion.div>
       )}
-      {verdict?.reveal && (
+      {verdict?.reveal && verdictShown && (
         <motion.div key="verdict" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 p-4" data-testid="verdict-screen" data-verdict={verdict.verdict}>
-          <div className="glass max-h-[94vh] w-[760px] max-w-full overflow-y-auto rounded-xl p-7">
-            <p className={`font-mono text-xs uppercase tracking-[0.35em] ${verdict.verdict === 'solved' ? 'text-emerald-300' : 'text-red-300'}`}>{verdict.verdict === 'solved' ? 'Case closed' : 'Case unsolved'}</p>
-            <h2 className="mt-1 font-display text-4xl">{verdict.verdict === 'solved' ? `It was ${caseFile.suspects.find((s) => s.id === verdict.reveal!.culprit)?.name}.` : 'The thief got away with it.'}</h2>
+          <div className="glass relative max-h-[94vh] w-[760px] max-w-full overflow-y-auto rounded-xl p-7">
+            <button onClick={() => setVerdictShown(false)} aria-label="Close" data-testid="verdict-close" className="absolute right-4 top-4 rounded-full border border-slate-600 p-1.5 text-slate-300 hover:border-slate-300 hover:text-white"><X className="h-4 w-4" /></button>
+            <div className={`rounded-xl border-2 px-5 py-4 text-center ${won ? 'border-emerald-300/70 bg-emerald-400/10' : 'border-red-300/60 bg-red-400/10'}`} data-testid="verdict-banner">
+              <p className={`font-display text-6xl font-semibold tracking-wide ${won ? 'text-emerald-200' : 'text-red-200'}`}>{won ? 'YOU WIN!' : 'CASE UNSOLVED'}</p>
+              <p className={`mt-1 font-mono text-xs uppercase tracking-[0.35em] ${won ? 'text-emerald-300' : 'text-red-300'}`}>{won ? 'Case closed · you caught the thief' : 'The thief got away'}</p>
+            </div>
+            <h2 className="mt-4 font-display text-3xl">{won ? `It was ${caseFile.suspects.find((s) => s.id === verdict.reveal!.culprit)?.name}.` : 'Here is what really happened.'}</h2>
             <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-300">{verdict.feedback.map((f) => <li key={f}>{f}</li>)}</ul>
             <p className="eyebrow mt-5">What really happened</p>
             <div className="mt-1 space-y-2 text-sm leading-relaxed text-slate-200" data-testid="reveal">
@@ -160,7 +165,10 @@ export function AccusationModal() {
               <ol className="list-decimal space-y-0.5 pl-5 text-xs text-slate-400">{verdict.reveal.sequence.map((s) => <li key={s}>{s}</li>)}</ol>
               <p className="text-xs text-slate-400">{caseFile.suspects.map((s) => `${s.name}: ${verdict.reveal!.truth[s.id] === 'lies' ? 'lied' : 'told the truth'}`).join(' · ')}</p>
             </div>
-            <button onClick={() => { resetInvestigation(); useMystery.getState().reset(); useMystery.getState().setAccuseOpen(false) }} data-testid="restart" className="mt-5 flex items-center gap-2 rounded-lg border border-sky-300/60 bg-sky-300/10 px-4 py-2 text-sm text-sky-100 hover:bg-sky-300/20"><Check className="h-4 w-4" /> Restart the investigation</button>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <button onClick={() => setVerdictShown(false)} data-testid="verdict-dismiss" className="flex items-center gap-2 rounded-lg border border-slate-500 px-4 py-2 text-sm text-slate-100 hover:border-slate-300"><X className="h-4 w-4" /> Close and keep exploring</button>
+              <button onClick={() => { resetInvestigation(); useMystery.getState().reset(); useMystery.getState().setAccuseOpen(false) }} data-testid="restart" className="flex items-center gap-2 rounded-lg border border-sky-300/60 bg-sky-300/10 px-4 py-2 text-sm text-sky-100 hover:bg-sky-300/20"><Check className="h-4 w-4" /> Play again from the start</button>
+            </div>
           </div>
         </motion.div>
       )}

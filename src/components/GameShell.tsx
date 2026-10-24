@@ -108,7 +108,7 @@ export default function GameShell() {
             <button key={id} onClick={() => setPanel(panel === id ? null : id)} aria-pressed={panel === id} className={`flex items-center gap-1.5 ${chip(panel === id)}`}><Icon className="h-3 w-3" /> {label}</button>
           ))}
           <button onClick={() => toggleMap()} className={`flex items-center gap-1.5 ${chip(false)}`}><MapIcon className="h-3 w-3" /> Map</button>
-          <button onClick={() => useMystery.getState().setAccuseOpen(true)} data-testid="open-accuse" className={`flex items-center gap-1.5 ${chip(false)} !border-red-300/50 !text-red-200`}><Gavel className="h-3 w-3" /> Accuse</button>
+          <button onClick={() => { const m = useMystery.getState(); if (m.verdict?.reveal) m.setVerdictShown(true); else m.setAccuseOpen(true) }} data-testid="open-accuse" className={`flex items-center gap-1.5 ${chip(false)} !border-red-300/50 !text-red-200`}><Gavel className="h-3 w-3" /> Accuse</button>
           <button onClick={reset} className={`flex items-center gap-1.5 ${chip(false)}`}><RotateCcw className="h-3 w-3" /> Reset</button>
         </div>
         <AnimatePresence>
