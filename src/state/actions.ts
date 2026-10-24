@@ -1,5 +1,6 @@
 import { useEvidence } from './evidence'
 import { useGame } from './game'
+import { useAudio } from './audio'
 import caseData from '../data/case001.json'
 import type { CaseFile } from '../types/case'
 
@@ -12,6 +13,7 @@ export function inspectHotspot(id: string) {
   if (!h) return
   useGame.getState().inspect(id)
   useEvidence.getState().discover(h.evidenceId)
+  if (h.kind === 'terminal') useAudio.getState().openLab()
 }
 
 export function collectInspected() {
@@ -24,4 +26,6 @@ export function resetInvestigation() {
   useEvidence.getState().reset()
   useGame.getState().closeInspection()
   useGame.getState().toggleInventory(false)
+  useGame.getState().resetProgress()
+  useAudio.getState().reset()
 }

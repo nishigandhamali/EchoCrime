@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Camera, Compass, Footprints, Landmark, MapPin, MessageSquareQuote, Notebook, Pin, RotateCcw, Search, Users, X } from 'lucide-react'
+import { Camera, ListTree, Map as MapIcon, Footprints, Landmark, MapPin, MessageSquareQuote, Notebook, Pin, RotateCcw, Search, Users, X } from 'lucide-react'
 import caseData from '../data/case001.json'
 import type { CaseFile } from '../types/case'
 import CrimeScene from '../scene/CrimeScene'
-import { useGame } from '../state/game'
-import { useEvidence } from '../state/evidence'
+import { useGame, type PanelId } from '../state/game'
+import AudioLab from './AudioLab'
+import { MapOverlay, ObjectiveCard, TimelinePanel } from './Progress'
 import { resetInvestigation } from '../state/actions'
 import { EvidenceToasts, InspectionPanel, InteractionPrompt, InventoryPanel, useInvestigationKeys } from './Investigation'
 
 const caseFile = caseData as CaseFile
-type Panel = 'suspects' | 'notes' | 'theory'
+type Panel = PanelId
 
 const panels: { id: Panel; label: string; icon: typeof Search }[] = [
+  { id: 'timeline', label: 'Timeline', icon: ListTree },
   { id: 'suspects', label: 'Suspects', icon: Users },
   { id: 'notes', label: 'Notes', icon: Notebook },
   { id: 'theory', label: 'Theory', icon: Pin },
@@ -30,7 +32,9 @@ export default function GameShell() {
 
   const [overviewRoomId, setOverviewRoomId] = useState<string | null>(null)
   const [suspectId, setSuspectId] = useState<string | null>(null)
-  const [panel, setPanel] = useState<Panel | null>(null)
+  const panel = useGame((s) => s.panel)
+  const setPanel = useGame((s) => s.setPanel)
+  const toggleMap = useGame((s) => s.toggleMap)
   const [notes, setNotes] = useState('')
   const [resetSignal, setResetSignal] = useState(0)
   const [locked, setLocked] = useState(false)
@@ -43,7 +47,6 @@ export default function GameShell() {
 
   useInvestigationKeys()
   const inspecting = useGame((s) => s.inspectingId !== null)
-  const collected = useEvidence((s) => Object.values(s.status).filter((v) => v === 'confirmed').length)
   const explore = viewMode === 'explore'
   const suspect = caseFile.suspects.find((s) => s.id === suspectId) ?? null
   const shownRoomId = explore ? currentRoomId : overviewRoomId
@@ -77,19 +80,15 @@ export default function GameShell() {
           <p className="eyebrow !text-[9px]">{caseFile.number} · {caseFile.location}</p>
           <h1 className="font-display text-xl font-semibold leading-tight">Echo<span className="text-blood-glow">Crime</span> <span className="text-slate-400">·</span> {caseFile.title}</h1>
         </div>
-        <div className="glass rounded-xl p-4">
-          <p className="eyebrow flex items-center gap-2"><Compass className="h-3 w-3" /> Objective</p>
-          <p className="mt-2 text-sm leading-relaxed text-slate-300">Search the museum. Work out <span className="text-paper">how</span> the artifact was stolen and <span className="text-paper">who</span> took it.</p>
-          <p className="mt-3 flex items-center justify-between border-t border-slate-700/50 pt-3 font-mono text-[11px] text-slate-400" data-testid="evidence-count"><span>Evidence collected</span><span className="text-paper">{collected} / {caseFile.evidence.filter((e) => !e.locked).length}</span></p>
-          <p className="mt-3 flex items-center gap-2 border-t border-slate-700/50 pt-3 text-xs text-slate-300" data-testid="location">
-            <MapPin className="h-3.5 w-3.5 text-volt" />
-            {room ? <><span className="text-paper">{room.name}</span></> : <span className="text-slate-500">{explore ? 'Between rooms' : 'Museum overview'}</span>}
-          </p>
-        </div>
+        <ObjectiveCard />
+        <p className="glass flex items-center gap-2 rounded-xl px-4 py-2 text-xs text-slate-300" data-testid="location">
+          <MapPin className="h-3.5 w-3.5 text-volt" />
+          {room ? <span className="text-paper">{room.name}</span> : <span className="text-slate-500">{explore ? 'Between rooms' : 'Museum overview'}</span>}
+        </p>
       </div>
 
       {/* top-centre: room navigation */}
-      <nav aria-label="Museum rooms" className="absolute left-1/2 top-4 flex max-w-[52%] -translate-x-1/2 flex-wrap justify-center gap-1.5">
+      <nav aria-label="Museum rooms" className="absolute left-1/2 top-[4.25rem] flex max-w-[44%] -translate-x-1/2 flex-wrap justify-center gap-1.5">
         <button onClick={explore ? toOverview : toExplore} className={`flex items-center gap-1.5 ${chip(!explore)}`} data-testid="mode-toggle">
           {explore ? <><Landmark className="h-3 w-3" /> Overview</> : <><Footprints className="h-3 w-3" /> Walk</>}
         </button>
@@ -108,13 +107,14 @@ export default function GameShell() {
           {panels.map(({ id, label, icon: Icon }) => (
             <button key={id} onClick={() => setPanel(panel === id ? null : id)} aria-pressed={panel === id} className={`flex items-center gap-1.5 ${chip(panel === id)}`}><Icon className="h-3 w-3" /> {label}</button>
           ))}
+          <button onClick={() => toggleMap()} className={`flex items-center gap-1.5 ${chip(false)}`}><MapIcon className="h-3 w-3" /> Map</button>
           <button onClick={reset} className={`flex items-center gap-1.5 ${chip(false)}`}><RotateCcw className="h-3 w-3" /> Reset</button>
         </div>
         <AnimatePresence>
           {panel && (
             <motion.aside key={panel} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }} className="glass w-80 rounded-xl p-4">
               <div className="flex items-center justify-between">
-                <p className="eyebrow">{panel === 'notes' ? 'Detective notes' : panel === 'theory' ? 'Theory board' : 'Suspects'}</p>
+                <p className="eyebrow">{panel === 'notes' ? 'Detective notes' : panel === 'theory' ? 'Theory board' : panel === 'timeline' ? 'Timeline of the night' : 'Suspects'}</p>
                 <button onClick={() => setPanel(null)} aria-label="Close panel" className="text-slate-500 hover:text-slate-200"><X className="h-4 w-4" /></button>
               </div>
               {panel === 'suspects' && (
@@ -134,6 +134,7 @@ export default function GameShell() {
                   )}
                 </div>
               )}
+              {panel === 'timeline' && <TimelinePanel />}
               {panel === 'notes' && (
                 <div className="mt-3">
                   <textarea
@@ -154,6 +155,8 @@ export default function GameShell() {
         </AnimatePresence>
       </div>
 
+      <MapOverlay />
+      <AudioLab />
       <InteractionPrompt />
       <InspectionPanel />
       <InventoryPanel />
@@ -170,6 +173,8 @@ export default function GameShell() {
               <span className="flex items-center gap-1.5"><Key>Esc</Key> Free cursor</span>
               <span className="flex items-center gap-1.5"><Key>E</Key> Inspect</span>
               <span className="flex items-center gap-1.5"><Key>Tab</Key> Evidence</span>
+              <span className="flex items-center gap-1.5"><Key>T</Key> Timeline</span>
+              <span className="flex items-center gap-1.5"><Key>M</Key> Map</span>
             </>
           ) : (
             <span>Drag to orbit · scroll to zoom · right-drag to pan · click a room</span>

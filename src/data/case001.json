@@ -7,44 +7,88 @@
   "summary": "A priceless artifact vanishes from a locked gallery. The cameras were dead. Only a microphone was listening.",
   "scenario": "A valuable artifact disappears from the Riverside Museum at 11:47 PM. Security cameras malfunctioned, but a nearby microphone recorded suspicious sounds. You must discover how the theft happened and identify the responsible suspect.",
   "recording": {
-    "label": "Gallery Mic 3 \u2014 23:47:00",
+    "label": "Gallery Mic 3 — 23:47:00",
     "durationSeconds": 36
   },
   "events": [
     {
+      "id": "door",
+      "type": "door_open",
+      "label": "Quiet door",
+      "startSeconds": 3,
+      "description": "A latch clicks and a door opens softly, far from the microphone.",
+      "unknownLabel": "Unknown quiet sound",
+      "unlockedBy": [
+        "ev-door"
+      ],
+      "durationSeconds": 1.1
+    },
+    {
       "id": "glass",
       "type": "glass_break",
-      "label": "Broken Window",
+      "label": "Glass breaking",
       "startSeconds": 8,
-      "description": "A large window shatters inside the east gallery."
+      "description": "A large pane of glass shatters inside the east gallery.",
+      "unknownLabel": "Unknown disturbance",
+      "unlockedBy": [
+        "ev-window"
+      ],
+      "durationSeconds": 2.4
+    },
+    {
+      "id": "radio",
+      "type": "radio_chirp",
+      "label": "Faint radio chirp",
+      "startSeconds": 11.4,
+      "durationSeconds": 0.9,
+      "description": "Three quiet rising tones from a two-way radio, just before the footsteps.",
+      "unknownLabel": "Unknown faint signal",
+      "unlockedBy": [
+        "ev-hidden"
+      ]
     },
     {
       "id": "steps",
       "type": "footsteps",
-      "label": "Running Footsteps",
+      "label": "Running footsteps",
       "startSeconds": 14,
-      "description": "Someone runs across the marble floor."
+      "description": "Someone runs across the marble, away from the glass.",
+      "unknownLabel": "Unknown movement",
+      "unlockedBy": [
+        "ev-steps"
+      ],
+      "durationSeconds": 4.2
     },
     {
       "id": "clang",
       "type": "metallic_clang",
-      "label": "Metallic Clang",
+      "label": "Metal object falling",
       "startSeconds": 21,
-      "description": "A heavy metal object strikes the floor."
+      "description": "A heavy metal tool strikes the floor and rings.",
+      "unknownLabel": "Unknown metallic impact",
+      "unlockedBy": [
+        "ev-clang"
+      ],
+      "durationSeconds": 3.0
     },
     {
       "id": "vehicle",
       "type": "vehicle",
-      "label": "Escape Vehicle",
+      "label": "Vehicle starting",
       "startSeconds": 28,
-      "description": "An engine starts outside and pulls away."
+      "description": "A small engine turns over outside the loading bay and pulls away.",
+      "unknownLabel": "Unknown departure",
+      "unlockedBy": [
+        "ev-vehicle"
+      ],
+      "durationSeconds": 6.2
     }
   ],
   "evidence": [
     {
       "id": "ev-case",
-      "name": "Untriggered Alarm",
-      "description": "The pedestal alarm contacts are clean. Whoever opened this case did it without tripping the alarm.",
+      "name": "Alarm Never Triggered",
+      "description": "The pedestal alarm contacts are clean. The case was opened while its alarm zone was disarmed from the security system.",
       "source": "Display case",
       "eventId": null,
       "locked": false
@@ -52,7 +96,7 @@
     {
       "id": "ev-window",
       "name": "Broken Window",
-      "description": "Glass shatters in the east gallery. Was it the entry point, or staged?",
+      "description": "The glass lies inside the gallery, not on the pavement. The window was broken from within, so the break-in may have been staged.",
       "source": "Gallery Mic 3",
       "eventId": "glass",
       "locked": false
@@ -60,15 +104,15 @@
     {
       "id": "ev-steps",
       "name": "Running Footsteps",
-      "description": "Fast, hard-soled steps cross the marble. The runner knows the layout.",
+      "description": "Long, hard-soled scuffs run from the window toward the staff door, not away from the building. The runner knew exactly where to go.",
       "source": "Gallery Mic 3",
       "eventId": "steps",
       "locked": false
     },
     {
       "id": "ev-clang",
-      "name": "Metallic Clang",
-      "description": "Something heavy and metal hits the floor. A tool, a lock, or a dropped weapon?",
+      "name": "Dropped Pry Bar",
+      "description": "A steel pry bar, unused: its tip is clean. A maintenance tag is stamped \"FACILITIES · A.T.\"",
       "source": "Gallery Mic 3",
       "eventId": "clang",
       "locked": false
@@ -76,15 +120,15 @@
     {
       "id": "ev-door",
       "name": "Unlatched Staff Door",
-      "description": "The staff door is not fully latched. The badge reader logged no entry tonight, yet the latch plate is warm.",
+      "description": "The staff door is not fully latched. The badge reader logged no entry tonight, yet the latch plate is warm: someone used an override that doesn't log.",
       "source": "Staff Corridor",
-      "eventId": null,
+      "eventId": "door",
       "locked": false
     },
     {
       "id": "ev-terminal",
-      "name": "Security Recording Log",
-      "description": "The terminal lists one recording from Gallery Mic 3 at 23:47. The camera feeds stop four minutes earlier; the microphone kept running.",
+      "name": "Cameras Switched Off",
+      "description": "The terminal shows an admin session at 23:41 that switched the camera feeds off at 23:43 and armed no alarm zone. The microphone feed was left running.",
       "source": "Security terminal",
       "eventId": null,
       "locked": false
@@ -92,19 +136,19 @@
     {
       "id": "ev-vehicle",
       "name": "Escape Vehicle",
-      "description": "An engine turns over outside the loading dock and fades away.",
+      "description": "Narrow tyre marks lead from the dock door: a small car, not the contractor's van parked in bay two.",
       "source": "Gallery Mic 3",
       "eventId": "vehicle",
       "locked": false
     },
     {
       "id": "ev-hidden",
-      "name": "Hidden Evidence",
-      "description": "Classified. Something on the recording has not been found yet.",
-      "source": "Unknown",
-      "eventId": null,
+      "name": "Facilities Radio Chirp",
+      "description": "Three rising tones: the check-in chirp of a Facilities two-way radio. Only maintenance staff carry them, and it sounds a few seconds before the running starts.",
+      "source": "Gallery Mic 3, 00:11",
+      "eventId": "radio",
       "locked": true,
-      "lockedHint": "Something on the recording has not been found yet."
+      "lockedHint": "Something faint on the recording hasn't been noticed yet. Listen closely and mark what sounds out of place."
     }
   ],
   "suspects": [
@@ -193,7 +237,7 @@
       ],
       "evidenceId": "ev-clang",
       "eventId": "clang",
-      "inspection": "A heavy steel pry bar lies on the marble, a fresh chip in the tile beneath it. It was dropped hard enough to ring through the whole gallery.",
+      "inspection": "A heavy steel pry bar lies on the marble, a fresh chip in the tile beneath it. Dropped hard enough to ring through the whole gallery. A stamped tag on the handle reads FACILITIES · A.T.",
       "roomId": "east-gallery",
       "reach": 2.2
     },
@@ -223,7 +267,7 @@
       ],
       "evidenceId": "ev-vehicle",
       "eventId": "vehicle",
-      "inspection": "The service corridor leads to the loading dock. Cold night air is flowing in, and faint tire marks lead away from the dock door.",
+      "inspection": "The service corridor leads to the loading dock. Cold night air is flowing in, and narrow tyre marks lead away from the dock door. The work van in bay two hasn't moved.",
       "roomId": "loading-bay",
       "reach": 2.8
     },
@@ -238,7 +282,7 @@
       ],
       "evidenceId": "ev-terminal",
       "eventId": null,
-      "inspection": "The recording terminal is still logged in. One entry stands out: Gallery Mic 3, 23:47, thirty-six seconds of audio. The camera channels all end at 23:43.",
+      "inspection": "The recording terminal is still logged in as an administrator. One entry stands out: Gallery Mic 3, 23:47, thirty-six seconds of audio. The camera channels all end at 23:43.",
       "roomId": "security-room",
       "reach": 2.4
     }
@@ -308,6 +352,59 @@
       ],
       "objective": "Find how the thief left: the service entrance and the escape vehicle.",
       "short": "Loading Bay"
+    }
+  ],
+  "objectives": [
+    {
+      "id": "obj-case",
+      "text": "Examine the empty display case",
+      "hint": "Walk up to the case in the centre of the gallery and press E.",
+      "done": {
+        "evidence": "ev-case"
+      }
+    },
+    {
+      "id": "obj-east",
+      "text": "Search the East Gallery",
+      "hint": "Go through the doorway on the east side of the main gallery.",
+      "done": {
+        "visitRoom": "east-gallery"
+      }
+    },
+    {
+      "id": "obj-entry",
+      "text": "Find how the thief got in or out",
+      "hint": "Look in the East Gallery for broken glass and tracks.",
+      "done": {
+        "evidenceAny": [
+          "ev-window",
+          "ev-steps"
+        ]
+      }
+    },
+    {
+      "id": "obj-three",
+      "text": "Collect at least 3 clues",
+      "hint": "Inspect objects and press Enter to collect them.",
+      "done": {
+        "collected": 3
+      }
+    },
+    {
+      "id": "obj-security",
+      "text": "Check the Security Room terminal",
+      "hint": "The cameras failed. Find out why.",
+      "done": {
+        "evidence": "ev-terminal"
+      }
+    },
+    {
+      "id": "obj-timeline",
+      "text": "Reveal 4 events of the night",
+      "hint": "Each audio-related clue adds an event to the timeline (T).",
+      "done": {
+        "timelineEvents": 4
+      }
     }
   ]
 }

@@ -1,0 +1,64 @@
+{
+  "sampleRate": 22050,
+  "note": "Synthesised with scripts/make-audio.mjs; not recordings of real events.",
+  "clips": {
+    "door": {
+      "file": "door.wav",
+      "duration": 1.1
+    },
+    "glass": {
+      "file": "glass.wav",
+      "duration": 2.4
+    },
+    "steps": {
+      "file": "steps.wav",
+      "duration": 4.2
+    },
+    "clang": {
+      "file": "clang.wav",
+      "duration": 3
+    },
+    "vehicle": {
+      "file": "vehicle.wav",
+      "duration": 6.2
+    },
+    "radio": {
+      "file": "radio.wav",
+      "duration": 0.9
+    },
+    "ambient": {
+      "file": "ambient.wav",
+      "duration": 12
+    }
+  },
+  "master": {
+    "file": "gallery_mic_3.wav",
+    "duration": 36,
+    "events": {
+      "door": {
+        "start": 3,
+        "duration": 1.1
+      },
+      "glass": {
+        "start": 8,
+        "duration": 2.4
+      },
+      "radio": {
+        "start": 11.4,
+        "duration": 0.9
+      },
+      "steps": {
+        "start": 14,
+        "duration": 4.2
+      },
+      "clang": {
+        "start": 21,
+        "duration": 3
+      },
+      "vehicle": {
+        "start": 28,
+        "duration": 6.2
+      }
+    }
+  }
+}

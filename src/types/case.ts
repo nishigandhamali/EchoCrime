@@ -1,11 +1,15 @@
-export type EventType = 'glass_break' | 'footsteps' | 'metallic_clang' | 'vehicle'
+export type EventType = 'radio_chirp' | 'door_open' | 'glass_break' | 'footsteps' | 'metallic_clang' | 'vehicle'
 
 export interface CaseEvent {
   id: string
   type: EventType
   label: string
   startSeconds: number
+  durationSeconds: number
   description: string
+  /** Shown in the timeline until one of these evidence items is discovered. */
+  unknownLabel: string
+  unlockedBy: string[]
 }
 
 export interface Evidence {
@@ -55,6 +59,15 @@ export interface Hotspot {
   reach?: number
 }
 
+export type ObjectiveRule =
+  | { visitRoom: string }
+  | { evidence: string }
+  | { evidenceAny: string[] }
+  | { collected: number }
+  | { timelineEvents: number }
+
+export interface Objective { id: string; text: string; hint: string; done: ObjectiveRule }
+
 export interface CaseFile {
   id: string
   number: string
@@ -69,5 +82,6 @@ export interface CaseFile {
   suspects: Suspect[]
   hotspots: Hotspot[]
   rooms: Room[]
+  objectives: Objective[]
 }
 

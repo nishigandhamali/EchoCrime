@@ -2,9 +2,10 @@ import { useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, Fingerprint, Lock, Search, X } from 'lucide-react'
 import { useGame } from '../state/game'
-import { evidenceById, useEvidence, type EvidenceStatus } from '../state/evidence'
+import { eventById, evidenceById, useEvidence, type EvidenceStatus } from '../state/evidence'
 import { collectInspected, hotspotById, inspectHotspot } from '../state/actions'
 import { isTypingTarget } from '../lib/input'
+import { useAudio } from '../state/audio'
 import caseData from '../data/case001.json'
 import type { CaseFile } from '../types/case'
 
@@ -19,8 +20,10 @@ export function useInvestigationKeys() {
       if (g.viewMode !== 'explore') return
       if (e.code === 'KeyE' && !g.frozen && g.nearbyId) inspectHotspot(g.nearbyId)
       else if (e.code === 'Enter' && g.inspectingId) collectInspected()
-      else if (e.code === 'Escape') { if (g.inspectingId) g.closeInspection(); else if (g.inventoryOpen) g.toggleInventory(false) }
+      else if (e.code === 'Escape') { if (useAudio.getState().labOpen) { useAudio.getState().closeLab(); g.closeInspection() } else if (g.inspectingId) g.closeInspection(); else if (g.mapOpen) g.toggleMap(false); else if (g.inventoryOpen) g.toggleInventory(false); else if (g.panel) g.setPanel(null) }
       else if (e.code === 'Tab') { e.preventDefault(); if (!g.inspectingId) g.toggleInventory() }
+      else if (e.code === 'KeyM' && !g.inspectingId) g.toggleMap()
+      else if (e.code === 'KeyT' && !g.inspectingId) g.setPanel(g.panel === 'timeline' ? null : 'timeline')
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -55,6 +58,7 @@ const badge: Record<EvidenceStatus, { label: string; cls: string }> = {
 }
 
 export function InspectionPanel() {
+  const labOpen = useAudio((s) => s.labOpen)
   const id = useGame((s) => s.inspectingId)
   const close = useGame((s) => s.closeInspection)
   const h = id ? hotspotById(id) : undefined
@@ -62,7 +66,7 @@ export function InspectionPanel() {
   const status = useEvidence((s) => (ev ? s.status[ev.id] : null))
   return (
     <AnimatePresence>
-      {h && (
+      {h && !labOpen && (
         <motion.div key={h.id} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ type: 'spring', stiffness: 260, damping: 28 }}
           className="glass absolute right-6 top-24 w-[400px] rounded-xl border-amber-200/25 p-5" data-testid="inspection">
           <button onClick={close} aria-label="Close inspection" className="absolute right-3 top-3 text-slate-500 hover:text-slate-200"><X className="h-4 w-4" /></button>
@@ -94,28 +98,29 @@ export function InspectionPanel() {
   )
 }
 
-/** Cinematic banner when evidence is discovered or collected; each toast clears itself. */
+/** Cinematic banner for discoveries, collections and timeline updates; shown one at a time, oldest first. */
 export function EvidenceToasts() {
   const toasts = useEvidence((s) => s.toasts)
   const dismiss = useEvidence((s) => s.dismissToast)
-  const t = toasts[toasts.length - 1]
+  const t = toasts[0]
   useEffect(() => {
     if (!t) return
-    const timer = setTimeout(() => dismiss(t.id), 3000)
+    const timer = setTimeout(() => dismiss(t.id), t.kind === 'timeline' ? 2600 : 2400)
     return () => clearTimeout(timer)
   }, [t, dismiss])
   const ev = t ? evidenceById(t.evidenceId) : undefined
+  const event = t?.eventId ? eventById(t.eventId) : undefined
+  const style = { discovered: ['New evidence discovered', 'text-amber-200', 'via-amber-200'], collected: ['Evidence collected', 'text-emerald-200', 'via-emerald-200'], timeline: ['Timeline updated', 'text-sky-200', 'via-sky-200'] } as const
   return (
     <div className="pointer-events-none absolute inset-x-0 top-[17%] flex justify-center">
       <AnimatePresence mode="wait">
         {t && ev && (
           <motion.div key={t.id} initial={{ opacity: 0, scale: 0.92, letterSpacing: '0.1em' }} animate={{ opacity: 1, scale: 1, letterSpacing: '0.35em' }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="text-center" data-testid="toast">
-            <p className={`font-mono text-xs uppercase drop-shadow-[0_0_14px_rgba(0,0,0,0.9)] ${t.kind === 'discovered' ? 'text-amber-200' : 'text-emerald-200'}`}>
-              {t.kind === 'discovered' ? 'New evidence discovered' : 'Evidence collected'}
-            </p>
-            <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.6, delay: 0.1 }} className={`mx-auto mt-2 h-px w-72 ${t.kind === 'discovered' ? 'bg-gradient-to-r from-transparent via-amber-200 to-transparent' : 'bg-gradient-to-r from-transparent via-emerald-200 to-transparent'}`} />
-            <p className="mt-3 font-display text-4xl font-semibold tracking-wide text-paper drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)]">{ev.name}</p>
+            className="text-center" data-testid="toast" data-kind={t.kind}>
+            <p className={`font-mono text-xs uppercase drop-shadow-[0_0_14px_rgba(0,0,0,0.9)] ${style[t.kind][1]}`}>{style[t.kind][0]}</p>
+            <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.6, delay: 0.1 }} className={`mx-auto mt-2 h-px w-72 bg-gradient-to-r from-transparent ${style[t.kind][2]} to-transparent`} />
+            <p className="mt-3 font-display text-4xl font-semibold tracking-wide text-paper drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)]">{t.kind === 'timeline' && event ? event.label : ev.name}</p>
+            {t.kind === 'timeline' && <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.25em] text-slate-300">a new event joins the timeline · press T</p>}
           </motion.div>
         )}
       </AnimatePresence>
@@ -135,7 +140,7 @@ export function InventoryPanel() {
           className="glass absolute bottom-20 left-4 top-60 w-80 overflow-y-auto rounded-xl p-4" data-testid="inventory">
           <div className="flex items-center justify-between">
             <p className="eyebrow">Evidence inventory</p>
-            <span className="font-mono text-[11px] text-slate-400">{collected} / {caseFile.evidence.filter((e) => !e.locked).length} collected</span>
+            <span className="font-mono text-[11px] text-slate-400">{collected} / {caseFile.evidence.length} collected</span>
           </div>
           <ul className="mt-3 space-y-2">
             {caseFile.evidence.map((e, i) => {
