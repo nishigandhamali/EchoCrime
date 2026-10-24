@@ -1,6 +1,7 @@
 import express from 'express'
 import { z } from 'zod'
 import { EVENT_IDS, hypothesisSchema, parseHypothesis } from '../src/lib/hypothesis'
+import { CASE_AGAINST, LINKS, MISLEADING, SOLUTION } from './solution'
 
 const PORT = Number(process.env.PORT ?? 8787)
 const app = express()
@@ -42,6 +43,45 @@ app.post('/api/hypothesis', async (req, res) => {
     console.warn('LLM parse failed, using rules:', (err as Error).message)
   }
   res.json({ ok: true, edits: rules.edits, source: 'rules' })
+})
+
+const linkBody = z.object({ statementId: z.string().max(40), evidenceId: z.string().max(40) })
+/** Does this piece of evidence contradict or support this statement? Answered server-side so the answer key never ships to the browser. */
+app.post('/api/check-link', (req, res) => {
+  const b = linkBody.safeParse(req.body)
+  if (!b.success) return res.status(400).json({ ok: false, error: 'invalid_request' })
+  const hit = LINKS[b.data.statementId]?.[b.data.evidenceId]
+  res.json({ ok: true, relation: hit?.relation ?? 'none', note: hit?.note ?? 'Nothing here bears on that statement.' })
+})
+
+const accuseBody = z.object({ suspectId: z.enum(['alex', 'morgan', 'jordan']), evidenceIds: z.array(z.string().max(40)).max(12), theory: z.string().max(1200).default(''), attempt: z.number().int().min(1).max(20) })
+const MAX_ATTEMPTS = 3
+/** Judges an accusation against the hidden solution. The full story is revealed only on a solve or when attempts run out. */
+app.post('/api/accuse', (req, res) => {
+  const b = accuseBody.safeParse(req.body)
+  if (!b.success) return res.status(400).json({ ok: false, error: 'invalid_request' })
+  const { suspectId, evidenceIds, theory, attempt } = b.data
+  const ids = [...new Set(evidenceIds)]
+  const strong = ids.filter((id) => CASE_AGAINST[id])
+  const lines = new Set(strong.map((id) => CASE_AGAINST[id].line))
+  const misleading = ids.filter((id) => MISLEADING.has(id))
+  const feedback: string[] = []
+  let verdict: 'solved' | 'partial' | 'wrong'
+  if (suspectId !== SOLUTION.culprit) {
+    verdict = 'wrong'
+    feedback.push(`The evidence you gathered does not hold up against ${suspectId === 'morgan' ? 'Morgan Lee' : 'Jordan Mills'}. Re-check each suspect's statements against what you found.`)
+  } else if (strong.length >= 3 && lines.size >= 2) {
+    verdict = 'solved'
+    feedback.push(...strong.map((id) => CASE_AGAINST[id].why))
+  } else {
+    verdict = 'partial'
+    feedback.push('Your suspect is right, but the case is not strong enough to convict: you need at least three pieces of evidence from at least two independent lines (access, ownership, presence, elimination).')
+    if (strong.length) feedback.push(...strong.map((id) => `Good: ${CASE_AGAINST[id].why}`))
+  }
+  if (misleading.length) feedback.push('Some of the evidence you attached is consistent with a staged break-in but does not point at anyone in particular.')
+  if (theory.trim().length < 20 && verdict !== 'wrong') feedback.push('Your written theory is very short: explain how the pieces fit together.')
+  const reveal = verdict === 'solved' || attempt >= MAX_ATTEMPTS
+  res.json({ ok: true, verdict, feedback, strongCount: strong.length, lines: lines.size, attemptsLeft: Math.max(0, MAX_ATTEMPTS - attempt), reveal: reveal ? { culprit: SOLUTION.culprit, motive: SOLUTION.motive, entry: SOLUTION.entry, escape: SOLUTION.escape, sequence: SOLUTION.sequence, truth: SOLUTION.truth } : null })
 })
 
 /** Placeholder for AI sound-effect generation. Not wired to a provider: returns 501 so the client keeps its deterministic clips. */

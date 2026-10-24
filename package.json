@@ -4,13 +4,13 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -k -n web,api \"vite\" \"tsx server/index.ts\"",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview",
     "server": "tsx server/index.ts",
-    "dev:all": "concurrently -k -n web,api \"vite\" \"tsx server/index.ts\"",
-    "test:logic": "tsx scripts/test-hypothesis.ts"
+    "test:logic": "tsx scripts/test-hypothesis.ts",
+    "dev:web": "vite"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

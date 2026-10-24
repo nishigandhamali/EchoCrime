@@ -1,6 +1,7 @@
 import { useEvidence } from './evidence'
 import { useGame } from './game'
 import { useAudio } from './audio'
+import { useMystery } from './mystery'
 import caseData from '../data/case001.json'
 import type { CaseFile } from '../types/case'
 
@@ -28,4 +29,6 @@ export function resetInvestigation() {
   useGame.getState().toggleInventory(false)
   useGame.getState().resetProgress()
   useAudio.getState().reset()
+  useMystery.getState().reset()
+  useGame.getState().setFrozen(false)
 }

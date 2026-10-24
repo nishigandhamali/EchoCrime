@@ -128,7 +128,7 @@
     {
       "id": "ev-terminal",
       "name": "Cameras Switched Off",
-      "description": "The terminal shows an admin session at 23:41 that switched the camera feeds off at 23:43 and armed no alarm zone. The microphone feed was left running.",
+      "description": "The terminal shows a shared Facilities admin login at 23:41 that switched the camera feeds off at 23:43 and left the gallery alarm zone disarmed. No HVAC work order is open tonight, and no outgoing call is logged. The microphone feed was left running.",
       "source": "Security terminal",
       "eventId": null,
       "locked": false
@@ -158,8 +158,18 @@
       "role": "Museum Technician",
       "age": 34,
       "initials": "AT",
-      "background": "Eight years maintaining the museum's security and climate systems. Has access to the camera control room.",
-      "statement": "\"I was repairing the HVAC in the basement. I heard glass break upstairs and called security right away.\""
+      "background": "Eight years maintaining the museum's security, alarm and climate systems. Holds the shared Facilities admin login and a maintenance override on staff doors.",
+      "motive": "Recently passed over for the head-of-facilities job and in debt.",
+      "statements": [
+        {
+          "id": "alex-1",
+          "text": "I was repairing the HVAC in the basement all night."
+        },
+        {
+          "id": "alex-2",
+          "text": "I heard the glass break upstairs and called security right away."
+        }
+      ]
     },
     {
       "id": "morgan",
@@ -167,8 +177,18 @@
       "role": "Museum Curator",
       "age": 52,
       "initials": "ML",
-      "background": "Curator of the east gallery for fifteen years. Personally authorized the artifact's recent insurance appraisal.",
-      "statement": "\"I left at ten. I was home long before midnight. I only know what the police have told me.\""
+      "background": "Curator of the east gallery for fifteen years. Personally authorised the artifact's recent insurance appraisal.",
+      "motive": "The appraisal values the artifact far above the museum's insured figure.",
+      "statements": [
+        {
+          "id": "morgan-1",
+          "text": "I left at ten and was home long before midnight."
+        },
+        {
+          "id": "morgan-2",
+          "text": "I only know what the police have told me."
+        }
+      ]
     },
     {
       "id": "jordan",
@@ -176,8 +196,18 @@
       "role": "Contractor",
       "age": 41,
       "initials": "JM",
-      "background": "Hired for window restoration in the east gallery. Holds a temporary key card and drives a work van.",
-      "statement": "\"My shift ended at six. I haven't been back to the museum since I handed in my key card.\""
+      "background": "Hired for window restoration in the east gallery. Held a temporary key card and drives a work van.",
+      "motive": "Owed money by the museum for the window work.",
+      "statements": [
+        {
+          "id": "jordan-1",
+          "text": "My shift ended at six. I haven't been back since I handed in my key card."
+        },
+        {
+          "id": "jordan-2",
+          "text": "My van has been parked in bay two since this afternoon."
+        }
+      ]
     }
   ],
   "hotspots": [
@@ -282,7 +312,7 @@
       ],
       "evidenceId": "ev-terminal",
       "eventId": null,
-      "inspection": "The recording terminal is still logged in as an administrator. One entry stands out: Gallery Mic 3, 23:47, thirty-six seconds of audio. The camera channels all end at 23:43.",
+      "inspection": "The recording terminal is still logged in under the shared Facilities admin account. The camera channels all end at 23:43, no HVAC work order is open tonight, and no call to security is logged. One recording stands out: Gallery Mic 3, 23:47, thirty-six seconds of audio.",
       "roomId": "security-room",
       "reach": 2.4
     }

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Camera, ListTree, Map as MapIcon, Footprints, Landmark, MapPin, MessageSquareQuote, Notebook, Pin, RotateCcw, Search, Users, X } from 'lucide-react'
+import { Camera, Gavel, ListTree, Map as MapIcon, Footprints, Landmark, MapPin, Notebook, Pin, RotateCcw, Search, Users, X } from 'lucide-react'
 import caseData from '../data/case001.json'
 import type { CaseFile } from '../types/case'
 import CrimeScene from '../scene/CrimeScene'
 import { useGame, type PanelId } from '../state/game'
 import AudioLab from './AudioLab'
+import { AccusationModal, SuspectsPanel, TheoryBoard } from './Mystery'
+import { useMystery } from '../state/mystery'
 import { MapOverlay, ObjectiveCard, TimelinePanel } from './Progress'
 import { resetInvestigation } from '../state/actions'
 import { EvidenceToasts, InspectionPanel, InteractionPrompt, InventoryPanel, useInvestigationKeys } from './Investigation'
@@ -31,7 +33,6 @@ export default function GameShell() {
   const teleportToRoom = useGame((s) => s.teleportToRoom)
 
   const [overviewRoomId, setOverviewRoomId] = useState<string | null>(null)
-  const [suspectId, setSuspectId] = useState<string | null>(null)
   const panel = useGame((s) => s.panel)
   const setPanel = useGame((s) => s.setPanel)
   const toggleMap = useGame((s) => s.toggleMap)
@@ -48,7 +49,6 @@ export default function GameShell() {
   useInvestigationKeys()
   const inspecting = useGame((s) => s.inspectingId !== null)
   const explore = viewMode === 'explore'
-  const suspect = caseFile.suspects.find((s) => s.id === suspectId) ?? null
   const shownRoomId = explore ? currentRoomId : overviewRoomId
   const room = caseFile.rooms.find((r) => r.id === shownRoomId) ?? null
 
@@ -58,7 +58,7 @@ export default function GameShell() {
   }
   const toOverview = () => { setViewMode('overview'); setOverviewRoomId(null); setResetSignal((n) => n + 1) }
   const toExplore = () => setViewMode('explore')
-  const reset = () => { resetInvestigation(); setSuspectId(null); setOverviewRoomId(null); setPanel(null); teleportToRoom('main-gallery'); setResetSignal((n) => n + 1) }
+  const reset = () => { resetInvestigation(); setOverviewRoomId(null); setPanel(null); teleportToRoom('main-gallery'); setResetSignal((n) => n + 1) }
 
   const chip = (active: boolean) => `rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-colors ${active ? 'border-volt/70 bg-volt/20 text-volt-glow' : 'border-slate-600/50 bg-ink-950/70 text-slate-300 hover:border-volt/50'}`
 
@@ -108,6 +108,7 @@ export default function GameShell() {
             <button key={id} onClick={() => setPanel(panel === id ? null : id)} aria-pressed={panel === id} className={`flex items-center gap-1.5 ${chip(panel === id)}`}><Icon className="h-3 w-3" /> {label}</button>
           ))}
           <button onClick={() => toggleMap()} className={`flex items-center gap-1.5 ${chip(false)}`}><MapIcon className="h-3 w-3" /> Map</button>
+          <button onClick={() => useMystery.getState().setAccuseOpen(true)} data-testid="open-accuse" className={`flex items-center gap-1.5 ${chip(false)} !border-red-300/50 !text-red-200`}><Gavel className="h-3 w-3" /> Accuse</button>
           <button onClick={reset} className={`flex items-center gap-1.5 ${chip(false)}`}><RotateCcw className="h-3 w-3" /> Reset</button>
         </div>
         <AnimatePresence>
@@ -117,23 +118,7 @@ export default function GameShell() {
                 <p className="eyebrow">{panel === 'notes' ? 'Detective notes' : panel === 'theory' ? 'Theory board' : panel === 'timeline' ? 'Timeline of the night' : 'Suspects'}</p>
                 <button onClick={() => setPanel(null)} aria-label="Close panel" className="text-slate-500 hover:text-slate-200"><X className="h-4 w-4" /></button>
               </div>
-              {panel === 'suspects' && (
-                <div className="mt-3 space-y-2">
-                  {caseFile.suspects.map((s) => (
-                    <button key={s.id} onClick={() => setSuspectId(s.id === suspectId ? null : s.id)} aria-pressed={s.id === suspectId} className={`flex w-full items-center gap-3 rounded-lg border p-2.5 text-left transition-all ${s.id === suspectId ? 'border-blood/70 bg-blood/10' : 'border-slate-700/50 bg-ink-800/50 hover:border-slate-500/70'}`}>
-                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 font-display text-base ${s.id === suspectId ? 'border-blood-glow text-blood-glow' : 'border-slate-600 text-slate-300'}`}>{s.initials}</span>
-                      <span><span className="block font-display text-base leading-tight">{s.name}</span><span className="block text-[11px] text-slate-400">{s.role}</span></span>
-                    </button>
-                  ))}
-                  {suspect && (
-                    <div className="mt-3 rounded-lg border border-slate-700/50 bg-ink-900/60 p-3">
-                      <p className="text-xs leading-relaxed text-slate-300">{suspect.background}</p>
-                      <p className="eyebrow mt-3 flex items-center gap-1.5"><MessageSquareQuote className="h-3 w-3" /> Statement</p>
-                      <p className="mt-1 border-l-2 border-blood pl-3 font-display text-base italic leading-snug">{suspect.statement}</p>
-                    </div>
-                  )}
-                </div>
-              )}
+              {panel === 'suspects' && <SuspectsPanel />}
               {panel === 'timeline' && <TimelinePanel />}
               {panel === 'notes' && (
                 <div className="mt-3">
@@ -147,9 +132,7 @@ export default function GameShell() {
                   />
                 </div>
               )}
-              {panel === 'theory' && (
-                <p className="mt-3 rounded-lg border border-slate-700/50 bg-ink-900/60 p-3 text-xs leading-relaxed text-slate-400">The theory board connects evidence, events and suspects in a later phase. Nothing to connect yet.</p>
-              )}
+              {panel === 'theory' && <TheoryBoard />}
             </motion.aside>
           )}
         </AnimatePresence>
@@ -157,6 +140,7 @@ export default function GameShell() {
 
       <MapOverlay />
       <AudioLab />
+      <AccusationModal />
       <InteractionPrompt />
       <InspectionPanel />
       <InventoryPanel />

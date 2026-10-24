@@ -22,13 +22,15 @@ export interface Evidence {
   lockedHint?: string
 }
 
+export interface Statement { id: string; text: string }
 export interface Suspect {
   id: string
   name: string
   role: string
   age: number
   background: string
-  statement: string
+  motive: string
+  statements: Statement[]
   initials: string
 }
 

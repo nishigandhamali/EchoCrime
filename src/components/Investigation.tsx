@@ -6,6 +6,7 @@ import { eventById, evidenceById, useEvidence, type EvidenceStatus } from '../st
 import { collectInspected, hotspotById, inspectHotspot } from '../state/actions'
 import { isTypingTarget } from '../lib/input'
 import { useAudio } from '../state/audio'
+import { useMystery } from '../state/mystery'
 import caseData from '../data/case001.json'
 import type { CaseFile } from '../types/case'
 
@@ -20,6 +21,7 @@ export function useInvestigationKeys() {
       if (g.viewMode !== 'explore') return
       if (e.code === 'KeyE' && !g.frozen && g.nearbyId) inspectHotspot(g.nearbyId)
       else if (e.code === 'Enter' && g.inspectingId) collectInspected()
+      else if (e.code === 'Escape' && useMystery.getState().accuseOpen && !useMystery.getState().verdict?.reveal) useMystery.getState().setAccuseOpen(false)
       else if (e.code === 'Escape') { if (useAudio.getState().labOpen) { useAudio.getState().closeLab(); g.closeInspection() } else if (g.inspectingId) g.closeInspection(); else if (g.mapOpen) g.toggleMap(false); else if (g.inventoryOpen) g.toggleInventory(false); else if (g.panel) g.setPanel(null) }
       else if (e.code === 'Tab') { e.preventDefault(); if (!g.inspectingId) g.toggleInventory() }
       else if (e.code === 'KeyM' && !g.inspectingId) g.toggleMap()
