@@ -10,6 +10,4 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 22
-      # Optional. Without a key the rule-based parser is used.
-      - key: ANTHROPIC_API_KEY
-        sync: false
+      # Optional: add ANTHROPIC_API_KEY later in the Render dashboard (Environment) to enable the LLM sentence parser.
