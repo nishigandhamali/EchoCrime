@@ -1,39 +1,77 @@
-# EchoCrime — The Midnight Theft
+# EchoCrime: The Midnight Theft
 
-A third-person 3D detective mystery set in Riverside Museum. Explore five connected rooms, inspect evidence, listen to a security recording, test "what if?" hypotheses by re-assembling the tape, then accuse a suspect. Built with React, TypeScript, Vite, React Three Fiber, Rapier, Zustand, wavesurfer.js, and an Express + Zod API.
+**A 3D detective mystery you solve with your eyes, your ears, and (if you like) just your hand.**
 
-```
-npm install
-npm run dev            # web on :5173 and API on :8787 (the accusation and theory board need the API)
-npm run build          # type-check + production build
-npm run test:logic     # unit tests for the hypothesis parser and reconstruction
-node scripts/make-audio.mjs   # regenerates public/audio (deterministic DSP)
-```
+▶ **Play it: [echocrime.onrender.com](https://echocrime.onrender.com/)** (Chrome or Edge, desktop)
 
-## Deploy (Render, free tier)
-One Node service hosts the game and the API, so there is a single HTTPS URL (webcam hand control needs HTTPS).
-1. Push this branch to GitHub, then on https://render.com choose **New > Blueprint** and pick this repo (it reads `render.yaml`).
-2. Or **New > Web Service**: build `npm install --include=dev && npm run build`, start `npm start`, health check `/api/health`, Node 22.
-3. Optional: set `ANTHROPIC_API_KEY` to turn on the LLM sentence parser. Without it the rule parser is used.
-Locally: `npm run build && npm start` serves everything on http://localhost:8787. Free instances sleep when idle, so open the URL once before a demo.
+> The free server sleeps when idle, so the first load can take up to a minute.
+
+Riverside Museum, 11:47 PM. A priceless artifact is gone, and the security cameras were switched off. But one microphone kept recording. Walk the museum, collect evidence, listen to the tape, catch a lie, and name the thief.
+
+## Features
+- **Explore a 3D museum.** Five connected rooms, a third-person detective, real physics.
+- **Find evidence by looking closely.** Walking past an object reveals nothing; you have to inspect it. Each clue adds an event to the **timeline of the night**.
+- **Listen for the hidden clue.** The audio lab shows the real waveform of the security tape, and one faint sound isn't labelled anywhere.
+- **Ask "What if?"** Type a theory like *"What if the glass broke after the footsteps?"* and hear the tape rebuilt in that order. It's a way to think, never evidence.
+- **Catch the lie.** Test any suspect's statement against any clue.
+- **Accuse.** Name the right suspect and back it up with evidence. You get three tries.
+- **Play with your hand.** Webcam gesture control works alongside the keyboard.
+- **No cheating.** The solution lives only on the server and never reaches your browser.
 
 ## Controls
-WASD move · Shift run · Mouse look (click the scene) · **E** inspect / open the terminal · **Enter** collect · **Tab** evidence · **T** timeline · **M** map · **Esc** close.
 
-## How to play (90-second path)
-1. Walk to the empty display case in the Main Gallery, press **E**, then **Enter** to collect: *NEW EVIDENCE DISCOVERED*.
-2. Go through the east doorway: inspect the window, scuffs and pry bar. Each reveals an event on the **timeline (T)**: *TIMELINE UPDATED*.
-3. Staff Corridor door, then the Security Room terminal: **E** opens the **audio lab**. Play the tape, click the waveform, and **Mark** anything that sounds out of place (one faint sound is not labelled anywhere).
-4. **What if?** tab: "What if the glass broke after the footsteps?" Compare original and alternative waveforms. It is a hypothesis, not evidence.
-5. **Theory** panel: test a clue against a suspect's statement. **Accuse** with at least three pieces of evidence.
+| Keyboard and mouse | Hand (click **Use hand control**, then hold your hand still for a second) | Action |
+|---|---|---|
+| W A S D or arrow keys | Move your hand up / down | Walk |
+| Mouse (click the scene first) | Move your hand left / right | Turn |
+| Shift | Move your hand further up | Run |
+| | Swipe with an open hand towards a doorway | Walk into the next room automatically |
+| E | Pinch | Inspect |
+| Enter | Hold a pinch | Collect evidence |
+| Esc | Make a fist | Stop / close |
+| Tab, T, M | | Evidence, timeline, map |
 
-## Architecture
-- `src/scene/` — museum geometry, props, colliders (Rapier), third-person controller, hotspots.
-- `src/state/` — Zustand stores: `game` (mode, room, frozen), `evidence` (locked / available / discovered / confirmed), `audio`, `mystery`, plus derived `progress` (timeline, objectives, map).
-- `src/components/` — HUD, inspection, timeline, map, audio lab (`AudioLab`, `WhatIf`), theory board and accusation (`Mystery`).
-- `src/lib/hypothesis.ts` — shared parser and deterministic reconstruction; `src/lib/reconstruct.ts` renders the alternative tape with an OfflineAudioContext.
-- `server/` — Express + Zod. `solution.ts` holds the **hidden solution**: it is never bundled into the client and is only revealed by `/api/accuse` after a solve or the third attempt.
-- `public/audio/` — the tape and clips, generated by `scripts/make-audio.mjs`.
+The hand panel has a **Slow / Normal / Fast** speed setting (Slow is the default). Video is processed in your browser and never uploaded.
 
-## Asset credits (all CC0 / public domain)
-Poly Haven (models, PBR textures), Quaternius (character and animations), The Met Open Access (paintings: Vermeer, Bruegel, Turner, van Gogh). Details: `public/models/ASSETS.md`, `public/art/paintings.json`.
+## Run locally
+Needs Node.js 20.19+ or 22.12+.
+
+```bash
+npm install
+npm run dev
+```
+
+Open http://localhost:5173. `npm run dev` starts both the game and the API on port 8787. Accusations and the theory board need the API.
+
+| Command | What it does |
+|---|---|
+| `npm run build` | Type-check and production build |
+| `npm run test:logic` | Unit tests for the "What if?" parser and tape reconstruction |
+| `npx tsx scripts/test-hand-speed.ts` | Unit tests for the hand-joystick speed settings |
+| `node scripts/make-audio.mjs` | Regenerate the audio files |
+
+## Deploy
+`render.yaml` sets up one Render web service that serves both the game and the API from a single HTTPS address. The webcam only works over HTTPS. Build: `npm install --include=dev && npm run build`. Start: `npm start`. Health check: `/api/health`. Setting `ANTHROPIC_API_KEY` is optional and turns on an AI sentence parser for "What if?"; without it, a built-in rule parser is used.
+
+## How it's built
+- **Game:** React, TypeScript, Vite, React Three Fiber (Three.js), Rapier physics, Zustand, Tailwind, Framer Motion
+- **Audio:** wavesurfer.js and the Web Audio API. "What if?" rebuilds the tape in the browser, and the same theory always gives the same result.
+- **Hand tracking:** MediaPipe hand landmarks. The palm acts as a joystick; swipes pick a doorway and the detective walks a route found with A\* around the furniture.
+- **Server:** Node, Express and Zod. It checks theories and accusations against the hidden solution (`server/solution.ts`).
+
+| Folder | Contents |
+|---|---|
+| `src/scene/` | Museum, props, collisions, detective and camera |
+| `src/components/` | HUD, inspection, timeline, map, audio lab, theory board, accusation, hand panel |
+| `src/state/` | Game, evidence, audio and mystery state |
+| `src/lib/hand/` | Webcam tracking, gestures, speed settings, room navigation |
+| `server/` | API and hidden solution |
+
+## Good to know
+- The audio was **generated with code**, not recorded and not AI-generated. "What if?" reorders the existing clips.
+- The 3D scene is demanding. Laptops without a separate graphics card may stutter, especially the first time each room appears.
+
+## Credits
+All assets are CC0 or public domain: [Poly Haven](https://polyhaven.com) (models, textures), [Quaternius](https://quaternius.com) (character, animations), [The Met Open Access](https://www.metmuseum.org/about-the-met/policies-and-documents/open-access) (paintings by Vermeer, Bruegel, Turner and van Gogh). Details in `public/models/ASSETS.md` and `public/art/paintings.json`.
+
+Step-by-step walkthrough (with spoilers): [HOW_TO_PLAY.md](HOW_TO_PLAY.md).
