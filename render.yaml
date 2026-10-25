@@ -1,0 +1,15 @@
+# Render blueprint: one web service serves the game (dist/) and the /api server.
+services:
+  - type: web
+    name: echocrime
+    runtime: node
+    plan: free
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      # Optional. Without a key the rule-based parser is used.
+      - key: ANTHROPIC_API_KEY
+        sync: false

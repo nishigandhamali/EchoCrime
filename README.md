@@ -10,6 +10,13 @@ npm run test:logic     # unit tests for the hypothesis parser and reconstruction
 node scripts/make-audio.mjs   # regenerates public/audio (deterministic DSP)
 ```
 
+## Deploy (Render, free tier)
+One Node service hosts the game and the API, so there is a single HTTPS URL (webcam hand control needs HTTPS).
+1. Push this branch to GitHub, then on https://render.com choose **New > Blueprint** and pick this repo (it reads `render.yaml`).
+2. Or **New > Web Service**: build `npm install --include=dev && npm run build`, start `npm start`, health check `/api/health`, Node 22.
+3. Optional: set `ANTHROPIC_API_KEY` to turn on the LLM sentence parser. Without it the rule parser is used.
+Locally: `npm run build && npm start` serves everything on http://localhost:8787. Free instances sleep when idle, so open the URL once before a demo.
+
 ## Controls
 WASD move · Shift run · Mouse look (click the scene) · **E** inspect / open the terminal · **Enter** collect · **Tab** evidence · **T** timeline · **M** map · **Esc** close.
 

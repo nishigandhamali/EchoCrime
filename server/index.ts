@@ -1,10 +1,15 @@
 import express from 'express'
+import compression from 'compression'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { z } from 'zod'
 import { EVENT_IDS, hypothesisSchema, parseHypothesis } from '../src/lib/hypothesis'
 import { CASE_AGAINST, LINKS, MISLEADING, SOLUTION } from './solution'
 
 const PORT = Number(process.env.PORT ?? 8787)
 const app = express()
+app.disable('x-powered-by')
+app.use(compression())
 app.use(express.json({ limit: '16kb' }))
 
 const body = z.object({ text: z.string().min(1).max(300), known: z.array(z.enum(EVENT_IDS)).max(6) })
@@ -90,4 +95,12 @@ app.post('/api/sfx', (_req, res) => {
   res.status(501).json({ ok: false, error: 'sfx_provider_not_implemented' })
 })
 
-app.listen(PORT, () => console.log(`EchoCrime API on http://localhost:${PORT} (llm: ${!!process.env.ANTHROPIC_API_KEY})`))
+// In production the same server also hosts the built game (npm run build -> dist/), so one URL serves the site and /api.
+if (process.env.NODE_ENV === 'production') {
+  const dist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../dist')
+  app.use('/assets', express.static(path.join(dist, 'assets'), { immutable: true, maxAge: '1y' }))
+  app.use(express.static(dist, { maxAge: '1h' }))
+  app.get(/^(?!\/api\/).*/, (_req, res) => res.sendFile(path.join(dist, 'index.html')))
+}
+
+app.listen(PORT, '0.0.0.0', () => console.log(`EchoCrime on http://localhost:${PORT} (${process.env.NODE_ENV ?? 'development'}, llm: ${!!process.env.ANTHROPIC_API_KEY})`))
