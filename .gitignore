@@ -4,3 +4,6 @@ dist
 *.tsbuildinfo
 assets-src/
 .DS_Store
+ANSWERS_LOCAL.md
+*.local.md
+devpost/

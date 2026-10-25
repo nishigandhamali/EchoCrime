@@ -1,0 +1,13 @@
+# Render blueprint: one web service serves the game (dist/) and the /api server.
+services:
+  - type: web
+    name: echocrime
+    runtime: node
+    plan: free
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      # Optional: add ANTHROPIC_API_KEY later in the Render dashboard (Environment) to enable the LLM sentence parser.

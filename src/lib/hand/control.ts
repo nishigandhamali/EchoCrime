@@ -7,9 +7,13 @@ import { useAudio } from '../../state/audio'
 import { collectInspected, hotspotById, inspectHotspot } from '../../state/actions'
 import { isTypingTarget } from '../input'
 
-/** Hand position offset (in camera-frame units) that starts moving, and where full speed is reached. */
-const DEAD = 0.045, FULL = 0.17
-const SMOOTH_S = 0.18
+import { HAND_PROFILES, shapeAxis, type HandCfg, type HandSpeed } from './profile'
+export { HAND_PROFILES, type HandCfg, type HandSpeed }
+const SPEED_KEY = 'echocrime.handSpeed'
+function loadSpeed(): HandSpeed {
+  try { const v = localStorage.getItem(SPEED_KEY); if (v === 'slow' || v === 'normal' || v === 'fast') return v } catch { /* storage unavailable */ }
+  return 'slow'
+}
 const CALIBRATE_MS = 700
 const LOST_RESET_MS = 1200
 // Hands travel less up/down than sideways in a webcam frame, so vertical swipes need less distance.
@@ -28,6 +32,7 @@ export const hand = {
   neutral: null as { x: number; y: number } | null,
   route: null as Route | null,
   holdProgress: 0, // pinch-to-collect ring, 0..1
+  cfg: HAND_PROFILES[loadSpeed()] as HandCfg,
 }
 
 interface HandUI {
@@ -39,11 +44,19 @@ interface HandUI {
   calibrated: boolean
   gesture: Gesture | null
   walkingTo: string | null
+  speed: HandSpeed
 }
-export const useHand = create<HandUI>(() => ({ enabled: false, status: 'off', error: '', message: '', messageAt: 0, calibrated: false, gesture: null, walkingTo: null }))
+export const useHand = create<HandUI>(() => ({ enabled: false, status: 'off', error: '', message: '', messageAt: 0, calibrated: false, gesture: null, walkingTo: null, speed: loadSpeed() }))
+export function setHandSpeed(speed: HandSpeed) {
+  hand.cfg = HAND_PROFILES[speed]
+  useHand.setState({ speed })
+  try { localStorage.setItem(SPEED_KEY, speed) } catch { /* storage unavailable */ }
+}
+if (import.meta.env.DEV) Object.assign(window, { __handSpeed: { hand, setHandSpeed } })
 export const say = (message: string) => useHand.setState({ message, messageAt: performance.now() })
 
-const shape = (v: number) => Math.sign(v) * Math.min(1, Math.max(0, (Math.abs(v) - DEAD) / (FULL - DEAD)))
+/** Dead zone, then an ease curve so small hand movements give small speeds. */
+const shape = (v: number) => shapeAxis(v, hand.cfg)
 
 let lostSince = 0, lastT = 0, suppressUntil = 0, swipeReadyAt = 0
 let calib: HandFrame[] = []
@@ -182,7 +195,7 @@ export function feed(f: HandFrame | null) {
     tt = shape(f.x - hand.neutral.x)
     tf = shape(hand.neutral.y - f.y)
   }
-  const k = 1 - Math.exp(-dt / SMOOTH_S)
+  const k = 1 - Math.exp(-dt / hand.cfg.smooth)
   hand.forward += (tf - hand.forward) * k
   hand.turn += (tt - hand.turn) * k
   if (Math.abs(hand.forward) < 0.02) hand.forward = 0

@@ -10,7 +10,8 @@ export const CHARACTER_HEIGHT = 1.75
 useGLTF.preload(MODEL)
 
 export type Gait = 'idle' | 'walk' | 'run'
-export interface CharacterHandle { setGait: (g: Gait) => void }
+export interface CharacterHandle { setGait: (g: Gait, speed?: number) => void }
+const WALK_REF = 2.6 // m/s the walk clip was authored for
 
 /**
  * The visible detective: Quaternius Universal Base Character (CC0) clothed in a trench coat, trousers and shoes
@@ -22,6 +23,7 @@ const Character = forwardRef<CharacterHandle>(function Character(_, ref) {
   const mixer = useRef<THREE.AnimationMixer | null>(null)
   const actions = useRef<Record<string, THREE.AnimationAction>>({})
   const gait = useRef<Gait>('idle')
+  const speedRef = useRef(WALK_REF)
   const interactT = useRef(0)
 
   const { model, scale } = useMemo(() => {
@@ -63,7 +65,7 @@ const Character = forwardRef<CharacterHandle>(function Character(_, ref) {
     return () => { unsub(); mx.stopAllAction(); mx.uncacheRoot(model) }
   }, [model, animations])
 
-  useImperativeHandle(ref, () => ({ setGait: (g) => { gait.current = g } }), [])
+  useImperativeHandle(ref, () => ({ setGait: (g, speed = WALK_REF) => { gait.current = g; speedRef.current = speed } }), [])
 
   useFrame((_, dt) => {
     const a = actions.current
@@ -74,6 +76,8 @@ const Character = forwardRef<CharacterHandle>(function Character(_, ref) {
     const target = { idle: 0, walk: 0, run: 0, interact: interacting ? 1 : 0 }
     if (!interacting) target[gait.current] = 1
     else target.idle = 0.0
+    // slower travel plays the walk clip slower so the feet don't skate
+    a.walk.timeScale = THREE.MathUtils.clamp(speedRef.current / WALK_REF, 0.45, 1.2)
     for (const key of Object.keys(target) as (keyof typeof target)[]) a[key].weight += (target[key] - a[key].weight) * k
     a.interact.paused = !interacting
     mixer.current.update(dt)
