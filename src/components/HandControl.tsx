@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Crosshair, Hand, X } from 'lucide-react'
-import { disableHand, enableHand, hand, handWasEnabled, recalibrate, trackerVideo, useHand } from '../lib/hand/control'
+import { disableHand, enableHand, hand, handWasEnabled, recalibrate, setHandSpeed, trackerVideo, useHand } from '../lib/hand/control'
 import { arrowFor, doorsOf, otherSide, roomName, roomShort } from '../lib/hand/nav'
 import { playerSave } from '../scene/sceneRefs'
 import { useGame } from '../state/game'
@@ -11,7 +11,7 @@ const GESTURE: Record<Gesture, string> = { open: 'Open hand', point: 'Hand', pin
 
 const GUIDE: [string, string][] = [
   ['Move hand up / down', 'Walk forward / back'],
-  ['Move hand left / right', 'Turn'],
+  ['Move hand to the left / right of the screen', 'Turn left / right'],
   ['Swipe with an open hand', 'Walk through the doorway that way'],
   ['Pinch', 'Inspect the object in front of you'],
   ['Hold a pinch', 'Collect the evidence'],
@@ -31,11 +31,24 @@ function Preview() {
       if (v && v.readyState >= 2) { g.save(); g.translate(w, 0); g.scale(-1, 1); g.globalAlpha = 0.45; g.drawImage(v, 0, 0, w, h); g.restore() }
       const n = hand.neutral
       if (n) {
-        // joystick: centre, dead zone and full-speed ring
-        const cx = n.x * w, cy = n.y * h
-        g.strokeStyle = 'rgba(125,211,252,.35)'; g.lineWidth = 1
-        g.beginPath(); g.arc(cx, cy, 0.045 * w, 0, Math.PI * 2); g.stroke()
-        g.setLineDash([3, 4]); g.beginPath(); g.arc(cx, cy, 0.17 * w, 0, Math.PI * 2); g.stroke(); g.setLineDash([])
+        // Zones, as the preview shows them (mirrored, so your right hand side is the right of the picture):
+        // left of the centre strip turns left, right of it turns right, above it walks forward, below it walks back.
+        const { dead, full } = hand.cfg
+        const cx = n.x * w, cy = n.y * h, dx = dead * w, fx = full * w
+        const left = Math.max(0, -hand.turn), right = Math.max(0, hand.turn)
+        g.fillStyle = `rgba(251,191,36,${0.07 + 0.38 * left})`; g.fillRect(0, 0, Math.max(0, cx - dx), h)
+        g.fillStyle = `rgba(251,191,36,${0.07 + 0.38 * right})`; g.fillRect(cx + dx, 0, w - cx - dx, h)
+        g.fillStyle = Math.abs(hand.turn) < 0.02 ? 'rgba(110,231,183,.14)' : 'rgba(110,231,183,.04)'; g.fillRect(cx - dx, 0, dx * 2, h)
+        g.strokeStyle = 'rgba(232,228,216,.45)'; g.lineWidth = 1; g.setLineDash([3, 4])
+        for (const x of [cx - dx, cx + dx]) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke() }
+        g.strokeStyle = 'rgba(232,228,216,.2)'
+        for (const x of [cx - fx, cx + fx]) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke() }
+        g.setLineDash([])
+        g.font = '600 11px ui-monospace, monospace'; g.textBaseline = 'top'
+        g.fillStyle = 'rgba(253,230,138,.95)'; g.textAlign = 'left'; g.fillText('◀ TURN LEFT', 6, 6)
+        g.textAlign = 'right'; g.fillText('TURN RIGHT ▶', w - 6, 6)
+        g.textAlign = 'center'; g.fillStyle = 'rgba(110,231,183,.95)'; g.fillText('STRAIGHT', cx, 6)
+        g.fillStyle = 'rgba(232,228,216,.7)'; g.fillText('▲ FORWARD', cx, Math.max(22, cy - dead * h - 16)); g.fillText('▼ BACK', cx, Math.min(h - 16, cy + dead * h + 6))
         g.fillStyle = '#7dd3fc'; g.fillRect(cx - 1, cy - 6, 2, 12); g.fillRect(cx - 6, cy - 1, 12, 2)
         if (f) { g.strokeStyle = 'rgba(125,211,252,.8)'; g.lineWidth = 2; g.beginPath(); g.moveTo(cx, cy); g.lineTo(f.x * w, f.y * h); g.stroke() }
       }
@@ -86,7 +99,7 @@ function Doorways() {
 }
 
 export default function HandControl() {
-  const { enabled, status, error, message, messageAt, calibrated, gesture, walkingTo } = useHand()
+  const { enabled, status, error, message, messageAt, calibrated, gesture, walkingTo, speed } = useHand()
   const inspecting = useGame((s) => s.inspectingId !== null)
   const explore = useGame((s) => s.viewMode === 'explore')
   const [, force] = useState(0)
@@ -128,6 +141,14 @@ export default function HandControl() {
       </div>
       <Preview />
       <p className={`mt-2 min-h-[2.5em] text-xs leading-snug ${status === 'error' ? 'text-red-300' : 'text-slate-200'}`} data-testid="hand-status" role="status">{line}</p>
+      {!inspecting && (
+        <div className="mt-2 flex items-center gap-1.5" role="group" aria-label="Hand speed" data-testid="hand-speed">
+          <span className="mr-1 text-[11px] text-slate-400">Speed</span>
+          {(['slow', 'normal', 'fast'] as const).map((s) => (
+            <button key={s} onClick={() => setHandSpeed(s)} aria-pressed={speed === s} data-testid={`hand-speed-${s}`} className={`rounded-full border px-2.5 py-0.5 text-[11px] capitalize ${speed === s ? 'border-volt/70 bg-volt/20 text-volt-glow' : 'border-slate-600 text-slate-400 hover:text-paper'}`}>{s}</button>
+          ))}
+        </div>
+      )}
       {!inspecting && status !== 'error' && <Doorways />}
       {!inspecting && (
         <button onClick={() => setShowGuide((v) => !v)} aria-expanded={showGuide} className="mt-3 text-[11px] text-slate-400 underline-offset-2 hover:text-paper hover:underline">

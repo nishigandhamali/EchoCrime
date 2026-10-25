@@ -8,6 +8,7 @@ import { SPAWNS } from './colliders'
 import { playerSave, viewTarget } from './sceneRefs'
 import { clearInput, installInput, isDown } from '../lib/input'
 import { cancelRoute, hand } from '../lib/hand/control'
+import { driveSpeed } from '../lib/hand/profile'
 import { roomName } from '../lib/hand/nav'
 import { useGame } from '../state/game'
 
@@ -20,8 +21,6 @@ const GRAVITY = 18
 const CAM_DIST = 4.6
 const CAM_MIN_PITCH = 0.12
 const CAM_MAX_PITCH = 1.1
-/** Hand joystick: how fast a full left/right offset turns the camera (rad/s). */
-const HAND_TURN = 1.9
 
 export interface PlayerDebug { x: number; y: number; z: number; yaw: number; camYaw: number; grounded: boolean; gait: string; room: string | null; cam: [number, number, number] }
 
@@ -145,25 +144,25 @@ export default function Player({ rooms, hotspots }: Props) {
         if (r.idx === r.points.length - 1 && d < 0.35) cancelRoute(`You’re in the ${roomName(r.to)}.`)
         else if (r.stuckFor > 1.5) cancelRoute('Something is in the way. Steer around it and swipe again.')
         else {
-          wx = (wp.x - t0.x) / d; wz = (wp.z - t0.z) / d; len = 1; speed = WALK
+          wx = (wp.x - t0.x) / d; wz = (wp.z - t0.z) / d; len = 1; speed = hand.cfg.route
           // swing the camera round behind the detective so the next room comes into view
           let dy = Math.atan2(-wx, -wz) - s.camYaw
           dy = Math.atan2(Math.sin(dy), Math.cos(dy))
           s.camYaw += dy * (1 - Math.exp(-dt * 3))
         }
       } else {
-        s.camYaw -= hand.turn * HAND_TURN * dt
+        s.camYaw -= hand.turn * hand.cfg.turn * dt
         if (Math.abs(hand.forward) > 0.001) {
           const f = hand.forward
           wx = -sin * f; wz = -cos * f; len = Math.abs(f)
-          speed = Math.abs(f) > 0.9 ? RUN : WALK * Math.max(0.45, Math.abs(f) / 0.9)
+          speed = driveSpeed(f, hand.cfg)
         }
       }
     } else if (hand.route && frozen) cancelRoute()
     const moving = len > 0.001
     if (moving) { wx = (wx / len) * speed; wz = (wz / len) * speed }
-    s.gait = !moving ? 'idle' : speed === RUN ? 'run' : 'walk'
-    char.current?.setGait(s.gait)
+    s.gait = !moving ? 'idle' : speed > WALK * 1.05 ? 'run' : 'walk'
+    char.current?.setGait(s.gait, speed)
 
     s.vy = s.grounded ? -1 : s.vy - GRAVITY * dt
     const col = b.collider(0)
